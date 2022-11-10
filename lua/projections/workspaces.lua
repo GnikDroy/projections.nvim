@@ -3,7 +3,7 @@ local utils = require("projections.utils")
 
 local M = {}
 
-M.workspaces_file = vim.fn.stdpath("data") .. "/" .. "projection_workspaces.txt"
+M.workspaces_file = vim.fn.stdpath("data") .. "/" .. "projections_workspaces.txt"
 
 -- creates workspace file if not present
 local function create_workspaces_file()
@@ -13,10 +13,11 @@ end
 
 -- get list of all configured workspaces
 M.get_workspaces = function()
-    if not utils._file_exists(M.workspaces_file) then return {} end
     local workspaces = {}
-    for workspace in io.lines(M.workspaces_file) do
-        workspaces[#workspaces + 1] = vim.fs.normalize(workspace)
+    if utils._file_exists(M.workspaces_file) then
+        for ws in io.lines(M.workspaces_file) do
+            workspaces[#workspaces + 1] = vim.fs.normalize(ws)
+        end
     end
 
     local default_workspaces = config.get_config().workspaces

@@ -1,7 +1,8 @@
 local projects = require("projections.projects")
+local utils = require("projections.utils")
 
 local M = {}
-M.sessions_folder = vim.fs.normalize(vim.fn.stdpath("cache") .. "/" .. "projection_sessions")
+M.sessions_folder = vim.fs.normalize(vim.fn.stdpath("cache") .. "/" .. "projections_sessions")
 
 M.save_project_session = function()
     local cwd = vim.loop.cwd()
@@ -9,8 +10,9 @@ M.save_project_session = function()
 
     vim.fn.mkdir(M.sessions_folder, "p")
 
-    -- TODO: add path hash to filename
-    local session_path = vim.fs.normalize(M.sessions_folder .. "/" .. vim.fs.basename(cwd) .. ".vim")
+    local session_path = vim.fs.normalize(
+        M.sessions_folder .. "/" .. vim.fs.basename(cwd) .. "_" .. string.format("%u", utils._fnv1a(cwd)).. ".vim"
+    )
     vim.cmd(string.format("mksession! %s", session_path))
     return true
 end
@@ -20,8 +22,9 @@ M.load_project_session = function(path)
 
     vim.fn.mkdir(M.sessions_folder, "p")
 
-    -- TODO: add path hash to filename
-    local session_path = vim.fs.normalize(M.sessions_folder .. "/" .. vim.fs.basename(path) .. ".vim")
+    local session_path = vim.fs.normalize(
+        M.sessions_folder .. "/" .. vim.fs.basename(path) .. "_" .. string.format("%u", utils._fnv1a(path)).. ".vim"
+    )
     if vim.fn.filereadable(session_path) == 0 then return false end
 
     vim.cmd[[

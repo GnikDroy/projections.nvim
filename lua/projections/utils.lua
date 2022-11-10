@@ -18,4 +18,15 @@ M._unique = function(list)
     return result
 end
 
+M._fnv1a = function(s)
+    local bit = require("bit")
+    local prime = 1099511628211ULL
+    local hash = 14695981039346656037ULL
+    for i = 1, #s do
+        hash = bit.bxor(hash, s:byte(i))
+        hash = hash * prime
+    end
+    return hash
+end
+
 return M

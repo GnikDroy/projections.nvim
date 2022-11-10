@@ -41,7 +41,7 @@ You can get creative with this, `{ "package.json" }`, would classify all `npm` p
 #### Sessions
 
 This plugin also provides a small, and (completely optional) session manager for projects.
-**It is only intended to work with projection's projects!**. See, `:h session` and `projections.sessions`
+**It is only intended to work with projections' projects!**. See, `:h session` and `projections.sessions`
 
 ### Intended usage
 
@@ -52,8 +52,8 @@ then you are responsible for providing that information. There are several metho
 They are mentioned in their relevant sections. This is where the plugin stores that information:
 
 ```lua
-workspaces = stdpath('data') .. 'projection_workspaces.txt'
-sessions   = stdpath('cache') .. 'projection_sessions/'
+workspaces = stdpath('data') .. 'projections_workspaces.txt'
+sessions   = stdpath('cache') .. 'projections_sessions/'
 ```
 
 > You are responsible for creating a clear folder structure for your projects!
