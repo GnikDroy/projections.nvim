@@ -1,9 +1,10 @@
 # projections.nvim
 
-<div>
-   A tiny <span style="color: #a33">project</span> + sess<span style="color: #a33">ions</span> manager for neovim,
-   written in lua. Sessions support is optional.
-</div>
+**⚠️  This plugin under active development!**
+
+A tiny **project** + sess**ions** manager for neovim, written in lua. Sessions support is optional.
+
+![Project Telescope](https://user-images.githubusercontent.com/30725674/201093394-26ad578d-6a8d-4830-81c6-9e87eb5f0a34.png)
 
 ## Quick Guide
 
