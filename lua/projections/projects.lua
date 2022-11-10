@@ -1,3 +1,6 @@
+local utils = require("projections.utils")
+local config = require("projections.config")
+
 local M = {}
 
 local function get_files(path)
@@ -14,11 +17,10 @@ local function get_files(path)
 end
 
 local function contains_pattern(path, patterns)
-    for _, file in ipairs(get_files(path)) do
-        for _, pattern in ipairs(patterns) do
-            if string.match(file, pattern) then
-                return true
-            end
+    for _, pattern in ipairs(patterns) do
+        local f = vim.fs.normalize(path .. "/" .. pattern)
+        if vim.fn.isdirectory(f) == 1 or vim.fn.filereadable(f) == 1 then
+            return true
         end
     end
     return false
@@ -36,8 +38,13 @@ end
 
 M.get_projects = function()
     local results = {}
+
     local workspaces = require("projections.workspaces").get_workspaces()
-    local patterns = require("projections.config").get_config().patterns
+    local default_workspaces = config.get_config().workspaces
+    for _, ws in ipairs(default_workspaces) do table.insert(workspaces, ws) end
+    workspaces = utils._unique(workspaces)
+
+    local patterns = config.get_config().patterns
     for _, workspace in ipairs(workspaces) do
         for _, project in ipairs(M.get_workspace_projects(vim.fn.expand(workspace), patterns)) do
             table.insert(results, vim.fs.normalize(project))
