@@ -1,9 +1,11 @@
+local projects = require("projections.projects")
+
 local M = {}
 M.sessions_folder = vim.fs.normalize(vim.fn.stdpath("cache") .. "/" .. "projection_sessions")
 
 M.save_project_session = function()
     local cwd = vim.loop.cwd()
-    if not require("projections.projects").is_project_dir(cwd) then return end
+    if not projects.is_project_dir(cwd) then return false end
 
     vim.fn.mkdir(M.sessions_folder, "p")
 
@@ -14,7 +16,7 @@ M.save_project_session = function()
 end
 
 M.load_project_session = function(path)
-    if not require("projections.projects").is_project_dir(path) then return end
+    if not projects.is_project_dir(path) then return end
 
     vim.fn.mkdir(M.sessions_folder, "p")
 
