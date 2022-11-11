@@ -68,7 +68,7 @@ use({
     'gnikdroy/projections.nvim',
     config = function()
         require("projections").setup({
-            patterns = { ".git", ".svn", ".hg" }, -- Patterns to search for
+            patterns = { ".git", ".svn", ".hg" }, -- Patterns to search for, these are NOT regexp
             workspaces = { "~/dev" },             -- Default workspaces to search for
         })
     end
@@ -92,6 +92,7 @@ use({
     config = function()
         require("projections").setup({})
         local sessions = require("projections.sessions")
+        local workspaces = require("projections.workspaces")
 
         -- Attempt to save session automatically on directory change and exit
         vim.api.nvim_create_autocmd({ 'DirChangedPre', 'VimLeavePre' }, {
@@ -100,7 +101,7 @@ use({
         })
 
         -- Bind <leader>p to Telescope find_projects
-        -- on select switch to project's root and attempt to load project's session
+        -- on select, switch to project's root and attempt to load project's session
         require('telescope').load_extension('projections')
         vim.keymap.set("n", "<leader>p", function()
             local find_projects = require("telescope").extensions.projections.projections
