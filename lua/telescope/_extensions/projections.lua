@@ -7,7 +7,13 @@ local action_state = require("telescope.actions.state")
 local conf = require("telescope.config").values
 
 local function project_finder(_)
-    local projects = require("projections.projects").get_projects()
+    local workspaces = require("projections.workspace").get_workspaces()
+    local projects = {}
+    for _, ws in ipairs(workspaces) do
+        for _, project in ipairs(ws:projects()) do
+            table.insert(projects, project)
+        end
+    end
 
     local display = entry_display.create({
         items = { { width = 35 }, { remaining = true } },
@@ -16,13 +22,12 @@ local function project_finder(_)
 
     return finders.new_table({
         results = projects,
-        entry_maker = function(path)
-            local project_name = vim.fs.basename(path)
+        entry_maker = function(project)
             return {
                 display = function(e) return display({ e.name, { e.value, "Comment" } }) end,
-                name = project_name,
-                value = path,
-                ordinal = project_name,
+                name = project.name,
+                value = tostring(project:path()),
+                ordinal = tostring(project:path()),
             }
         end,
     })
@@ -50,5 +55,5 @@ end
 
 return telescope.register_extension({
     setup = function(_, _) end,
-    exports = { projections = find_projects},
+    exports = { projections = find_projects },
 })
