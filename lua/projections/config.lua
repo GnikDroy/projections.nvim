@@ -5,6 +5,8 @@ Config.__index = Config
 
 function Config.new()
     local config = setmetatable({}, Config)
+    config.store_hooks = { pre = nil, post = nil }
+    config.restore_hooks = { pre = nil, post = nil }
     config.workspaces = { '~/Documents/dev' }
     config.patterns = { '.git', '.svn', '.hg' }
     config.workspaces_file = Path.new(vim.fn.stdpath("data")) .. "projections_workspaces.txt"

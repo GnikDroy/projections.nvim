@@ -34,31 +34,38 @@ function Session._ensure_sessions_folder()
     return vim.fn.mkdir(tostring(config.sessions_folder), "p") == 1
 end
 
--- Saves the session
+-- Attempts to store the session
 -- @returns if operation was successful
-function Session.save(spath)
+function Session.store(spath)
     Session._ensure_sessions_folder()
 
     local session_path = Session.path(spath)
     if session_path == nil then return false end
+
+    if config.store_hooks.pre ~= nil then config.store_hooks.pre() end
     -- TODO: correctly indicate errors here!
     vim.cmd("mksession! " .. tostring(session_path))
+    if config.store_hooks.post ~= nil then config.store_hooks.post() end
     return true
 end
 
--- Attempts to load a session
+-- Attempts to restore a session
 -- @returns if operation was successful
-function Session.load(spath)
+function Session.restore(spath)
     Session._ensure_sessions_folder()
+    print(string.format(":restoring %s", spath))
 
     local session_path = Session.path(spath)
     if session_path == nil or not session_path:is_file() then return false end
+
+    if config.restore_hooks.pre ~= nil then config.restore_hooks.pre() end
     -- TODO: correctly indicate errors here!
     vim.cmd [[
         %bdelete!
         clearjumps
     ]]
     vim.cmd("source " .. tostring(session_path))
+    if config.restore_hooks.post ~= nil then config.restore_hooks.post() end
     return true
 end
 
