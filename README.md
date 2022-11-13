@@ -1,10 +1,12 @@
-# projections.nvim
+# 🛸 projections.nvim
 
 A tiny **project** + sess**ions** manager for neovim, written in lua. Sessions support is optional.
 
-![Project Telescope](https://user-images.githubusercontent.com/30725674/201093394-26ad578d-6a8d-4830-81c6-9e87eb5f0a34.png)
+**⚠️ Under active development**
 
-## Quick Guide
+![Project Telescope](https://user-images.githubusercontent.com/30725674/201514449-64b3a132-2147-4e07-b069-f02e57d389e4.gif)
+
+## 🗺️ Quick Guide
 
 ### Terminologies
 
@@ -43,39 +45,23 @@ You can get creative with this, `{ "package.json" }`, would classify all `npm` p
 This plugin also provides a small, and (completely optional) session manager for projects.
 **It is only intended to work with projections' projects!**. See, `:h session` and `projections.sessions`
 
-### Intended usage
-
-You provide `projections` a list of workspaces, and it will figure out everything else!
-
-For example, if you store your projects in `~/dev`, `~/Documents/dev` and `C:/repos`,
-then you are responsible for providing that information. There are several methods to do so.
-They are mentioned in their relevant sections. This is where the plugin stores that information:
-
-```lua
-workspaces = stdpath('data') .. 'projections_workspaces.txt'
-sessions   = stdpath('cache') .. 'projections_sessions/'
-```
-
-> You are responsible for creating a clear folder structure for your projects!
-While this plugin doesn't force any particularly outrageous folder structure,
-it won't work well with a particularly outrageous folder structure either!
-
-
-## Installation
+## 🔌 Installation
 
 ```lua
 use({ 
     'gnikdroy/projections.nvim',
     config = function()
         require("projections").setup({
-            patterns = { ".git", ".svn", ".hg" }, -- Patterns to search for, these are NOT regexp
-            workspaces = { "~/dev" },             -- Default workspaces to search for
+            workspaces = { "~/dev" },                    -- Default workspaces to search for
+            patterns = { ".git", ".svn", ".hg" },        -- Patterns to search for, these are NOT regexp
+            store_hooks = { pre = nil, post = nil },     -- pre and post hooks for store_session, callable | nil
+            restore_hooks = { pre = nil, post = nil },   -- pre and post hooks for restore_session, callable | nil
         })
     end
 })
 ```
 
-## Configuration
+## 🛠️ Configuration
 
 `projections` doesn't register commands or keybindings. It leaves you with 100% control.
 As this might be inconvenient to some, this section comes with a recommended configuration 
@@ -83,73 +69,104 @@ and recipes for different workflows.
 
 ### Recommended configuration
 
-The following saves project's session automatically, and provides a telescope switcher for projects.
-Additionlly, `AddWorkspace` command is registered to help users add CWD as workspace.
+The recommended setup does the following:
+
+* Provides a telescope switcher for projects, which can be launched by `<leader>fp`
+* Saves project's session automatically on `DirChange` and `VimExit`
 
 ```lua
 use({
     "gnikdroy/projections.nvim",
     config = function()
         require("projections").setup({})
-        local sessions = require("projections.sessions")
-        local workspaces = require("projections.workspaces")
-
-        -- Attempt to save session automatically on directory change and exit
-        vim.api.nvim_create_autocmd({ 'DirChangedPre', 'VimLeavePre' }, {
-            callback = function() sessions.save_project_session(vim.loop.cwd()) end,
-            desc = "Save project session",
-        })
 
         -- Bind <leader>p to Telescope find_projects
         -- on select, switch to project's root and attempt to load project's session
+        local Workspace = require("projections.workspace")
         require('telescope').load_extension('projections')
-        vim.keymap.set("n", "<leader>p", function()
+        vim.keymap.set("n", "<leader>fp", function()
             local find_projects = require("telescope").extensions.projections.projections
             find_projects({
                 action = function(selection)
+                    -- chdir is required since there might not be a session file
                     vim.fn.chdir(selection.value)
-                    sessions.load_project_session(selection.value)
+                    Session.restore(selection.value)
                 end,
             })
         end, { desc = "Find projects" })
 
-        -- Add workspace command
-        vim.api.nvim_create_user_command("AddWorkspace", function() workspaces.add_workspace(vim.loop.cwd()) end, {})
+
+        vim.api.nvim_create_autocmd({ 'DirChangedPre', 'VimLeavePre' }, {
+            callback = function() Session.store(vim.loop.cwd()) end,
+            desc = "Store project session",
+        })
     end
 })
 ```
 ### Recipes
 
-#### Manual Session commands
+#### Automatically restore last session
 
-The following lines register two commands `SaveProjectSession` and `LoadProjectSession`.
-Both of them attempt to save/load the session if `cwd` is a project directory.
-
-```lua
-local sessions = require("projections.sessions")
-
-vim.api.nvim_create_user_command("SaveProjectSession", function()
-    sessions.save_project_session(vim.loop.cwd())
-end, {})
-
-vim.api.nvim_create_user_command("LoadProjectSession", function()
-    sessions.load_project_session(vim.loop.cwd())
-end, {})
-```
-
-#### Autoload session if in project's root
-
-The following example loads the project's session
-if you launch nvim from project's root.
+The following lines register automatically restore last session.
 
 ```lua
-vim.api.nvim_create_autocmd('VimEnter' , {
-    callback = function() sessions.load_project_session(vim.loop.cwd()) end,
-    desc = "Autoload project session while launching vim",
+-- If vim was started with arguments, do nothing
+-- If in some project's root, attempt to restore's that project's session
+-- If not, restore last session
+-- If no sessions, do nothing
+vim.api.nvim_create_autocmd({ "VimEnter" }, {
+    callback = function()
+        if vim.fn.argc() ~= 0 then return end
+        local session_info = Session.info(vim.loop.cwd())
+        if session_info == nil then
+            Session.restore_latest()
+        else
+            Session.restore(vim.loop.cwd())
+        end
+    end,
+    desc = "Restore last session automatically"
 })
 ```
 
-## About Telescope
+#### Manual Session commands
+
+The following lines register two commands `StoreProjectSession` and `RestoreProjectSession`.
+Both of them attempt to store/restore the session if `cwd` is a project directory.
+
+```lua
+vim.api.nvim_create_user_command("StoreProjectSession", function()
+    Session.store(vim.loop.cwd())
+end, {})
+
+vim.api.nvim_create_user_command("RestoreProjectSession", function()
+    Session.restore(vim.loop.cwd())
+end, {})
+```
+
+#### Create AddWorkspace command
+
+The following example creates an `AddWorkspace command`
+which adds the current directory to workspaces file.
+
+```lua
+-- Add workspace command
+vim.api.nvim_create_user_command("AddWorkspace", function() 
+    Workspace.add(vim.loop.cwd()) 
+end, {})
+```
+
+### Intended usage
+
+> You are responsible for creating a clear folder structure for your projects!
+While this plugin doesn't force any particularly outrageous folder structure,
+it won't work well with a particularly outrageous folder structure either!
+
+```lua
+workspaces = stdpath('data') .. 'projections_workspaces.txt'
+sessions   = stdpath('cache') .. 'projections_sessions/'
+```
+
+## 🔭 About Telescope
 
 **The telescope plugin is intended to be the primary method to switch between projects!**
 So expect the usability of this plugin to be greatly compromised if you don't use 
@@ -157,13 +174,23 @@ So expect the usability of this plugin to be greatly compromised if you don't us
 
 That being said, you can create your own project switcher with the exposed functions.
 
+# API
+
+The source files are documented for now. But this section will be completed in due time.
+The API is not stable. You might need to spend a couple of minutes every once in a while to update!
+That being said, most of the core stuff shouldn't change.
+
 ## Interactions with other plugins
 
 Neovim's sessions do not work well with some plugins. For example, if you try `:mksession` with an open
 `nvim-tree` window, it will store instructions for an empty buffer in the sessions file.
 
-There are several other plugins that do not work well. This is why it is recommended to close all such buffers
-before attempting to save a session.
+There are several other plugins that do not work well. There are several methods to deal with this including:
+
+1. Close all such buffers before saving the session. `see pre store hooks`
+2. Store all such buffers, and then restore them accordingly. `see post restore hooks`
+3. Do nothing and handle the buffers manually, either at store or restore.
 
 **Will such a functionality be present in `projections`?** Hard to say. This is not an easy problem to solve reliably.
+Option 2 sounds reasonable, but everyone has different needs.
 And since the user knows better than `projections`, I am inclined to push this responsibility to the user as well.
