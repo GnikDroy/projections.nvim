@@ -2,8 +2,6 @@
 
 A tiny **project** + sess**ions** manager for neovim, written in lua. Sessions support is optional.
 
-**⚠️ Under active development**
-
 ![Project Telescope](https://user-images.githubusercontent.com/30725674/201514449-64b3a132-2147-4e07-b069-f02e57d389e4.gif)
 
 ## 🗺️ Quick Guide
@@ -95,7 +93,8 @@ use({
             })
         end, { desc = "Find projects" })
 
-
+        -- Autostore session on DirChange and VimExit
+        local Session = require("projections.session")
         vim.api.nvim_create_autocmd({ 'DirChangedPre', 'VimLeavePre' }, {
             callback = function() Session.store(vim.loop.cwd()) end,
             desc = "Store project session",
@@ -162,7 +161,7 @@ While this plugin doesn't force any particularly outrageous folder structure,
 it won't work well with a particularly outrageous folder structure either!
 
 ```lua
-workspaces = stdpath('data') .. 'projections_workspaces.txt'
+workspaces = stdpath('data') .. 'projections_workspaces.json'
 sessions   = stdpath('cache') .. 'projections_sessions/'
 ```
 

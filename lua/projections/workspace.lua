@@ -18,6 +18,24 @@ function Workspace.new(path, patterns)
     return workspace
 end
 
+-- Deserialize workspace from dict
+-- @param tbl String | Table of values
+-- @returns workspace
+function Workspace.deserialize(tbl)
+    -- has been configured for { path, patterns }
+    if type(tbl) == "table" then
+        return Workspace.new(Path.new(tbl.path.path), tbl.patterns)
+    end
+
+    -- has been configured for "path"
+    if type(tbl) == "string" then
+        local patterns = config.patterns
+        return Workspace.new(Path.new(tbl), patterns)
+    end
+    error("projections: deserializing workspaces file failed")
+end
+
+
 -- ensures that persistent workspaces file is present
 -- @returns if operation was successful
 function Workspace._ensure_persistent_file()
@@ -81,9 +99,10 @@ end
 function Workspace.get_workspaces_from_file()
     local workspaces = {}
     if vim.fn.filereadable(tostring(config.workspaces_file)) == 1 then
-        for spath in io.lines(tostring(config.workspaces_file)) do
-            local workspace = Workspace.new(Path.new(spath), config.patterns)
-            table.insert(workspaces, workspace)
+        local lines = vim.fn.readfile(tostring(config.workspaces_file))
+        if next(lines) == nil then return {} end
+        for _, ws in ipairs(vim.fn.json_decode(lines)) do
+            table.insert(workspaces, Workspace.deserialize(ws))
         end
     end
     workspaces = utils._unique_workspaces(workspaces)
@@ -95,19 +114,7 @@ end
 function Workspace.get_workspaces_from_config()
     local workspaces = {}
     for _, ws in ipairs(config.workspaces) do
-        -- has been configured for { path, patterns }
-        if type(ws) == "table" then
-            local spath, patterns = unpack(ws)
-            local workspace = Workspace.new(Path.new(spath), patterns)
-            table.insert(workspaces, workspace)
-        end
-
-        -- has been configured for "path"
-        if type(ws) == "string" then
-            local spath = ws
-            local patterns = config.patterns
-            table.insert(workspaces, Workspace.new(Path.new(spath), patterns))
-        end
+        table.insert(workspaces, Workspace.deserialize(ws))
     end
     workspaces = utils._unique_workspaces(workspaces)
     return workspaces
@@ -136,7 +143,7 @@ function Workspace.add(spath)
     Workspace._ensure_persistent_file()
 
     local workspaces = Workspace.get_workspaces_from_file()
-    table.insert(workspaces, path)
+    table.insert(workspaces, Workspace.new(path, config.patterns))
     workspaces = utils._unique_workspaces(workspaces)
 
     local file = io.open(tostring(config.workspaces_file), "w")
@@ -144,7 +151,7 @@ function Workspace.add(spath)
         vim.notify("projections: cannot open workspace file", vim.log.levels.ERROR)
         return false
     end
-    for _, workspace in ipairs(workspaces) do file:write(tostring(workspace.path) .. "\n") end
+    file:write(vim.json.encode(workspaces))
     file:close()
     return true
 end
