@@ -36,24 +36,30 @@ and Mercurial repositories under workspace `W` are considered projects.
 
 You can get creative with this, `{ "package.json" }`, would classify all `npm` packages as projects.
 
-*See `projections.setup()` for more details on `patterns`*
+*See `projections.init.setup`, or the next section for more details on `patterns`*
 
 #### Sessions
 
 This plugin also provides a small, and (completely optional) session manager for projects.
-**It is only intended to work with projections' projects!**. See, `:h session` and `projections.sessions`
+**It is only intended to work with projections' projects!**. See, `:h session` and `projections.session`
 
 ## 🔌 Installation
+
+**The table provided to setup consists of default values for the options.**
 
 ```lua
 use({ 
     'gnikdroy/projections.nvim',
     config = function()
         require("projections").setup({
-            workspaces = { "~/dev" },                    -- Default workspaces to search for
-            patterns = { ".git", ".svn", ".hg" },        -- Patterns to search for, these are NOT regexp
-            store_hooks = { pre = nil, post = nil },     -- pre and post hooks for store_session, callable | nil
-            restore_hooks = { pre = nil, post = nil },   -- pre and post hooks for restore_session, callable | nil
+            workspaces = {                             -- Default workspaces to search for 
+                -- "~/dev",                               dev is a workspace. default patterns is used (specified below)
+                -- { "~/Documents/dev", { ".git" } },     Documents/dev is a workspace. patterns = { ".git" }
+                -- { "~/repos", {} },                     An empty pattern list indicates that all subfolders are considered projects
+            },                    
+            patterns = { ".git", ".svn", ".hg" },      -- Default patterns to use if none were specified. These are NOT regexps.
+            store_hooks = { pre = nil, post = nil },   -- pre and post hooks for store_session, callable | nil
+            restore_hooks = { pre = nil, post = nil }, -- pre and post hooks for restore_session, callable | nil
         })
     end
 })
@@ -145,7 +151,7 @@ end, {})
 #### Create AddWorkspace command
 
 The following example creates an `AddWorkspace command`
-which adds the current directory to workspaces file.
+which adds the current directory to workspaces file. Default set of `patterns` is used.
 
 ```lua
 -- Add workspace command
@@ -159,6 +165,8 @@ end, {})
 > You are responsible for creating a clear folder structure for your projects!
 While this plugin doesn't force any particularly outrageous folder structure,
 it won't work well with a particularly outrageous folder structure either!
+
+`projections` stores information in the following places:
 
 ```lua
 workspaces = stdpath('data') .. 'projections_workspaces.json'
