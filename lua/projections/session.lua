@@ -1,5 +1,5 @@
 local utils = require("projections.utils")
-local config = require("projections.config")
+local config = require("projections.config").config
 local Workspace = require("projections.workspace")
 local Project = require("projections.project")
 

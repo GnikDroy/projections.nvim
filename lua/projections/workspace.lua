@@ -1,4 +1,4 @@
-local config = require("projections.config")
+local config = require("projections.config").config
 local utils = require("projections.utils")
 local Project = require("projections.project")
 
@@ -34,7 +34,6 @@ function Workspace.deserialize(tbl)
     end
     error("projections: deserializing workspaces file failed")
 end
-
 
 -- ensures that persistent workspaces file is present
 -- @returns if operation was successful
@@ -114,7 +113,15 @@ end
 function Workspace.get_workspaces_from_config()
     local workspaces = {}
     for _, ws in ipairs(config.workspaces) do
-        table.insert(workspaces, Workspace.deserialize(ws))
+        -- has been configured for { path, patterns }
+        if type(ws) == "table" then
+            local path, patterns = unpack(ws)
+            table.insert(workspaces, Workspace.new(Path.new(path), patterns))
+        end
+        -- has been configured for "path"
+        if type(ws) == "string" then
+            table.insert(workspaces, Workspace.new(Path.new(ws), config.patterns))
+        end
     end
     workspaces = utils._unique_workspaces(workspaces)
     return workspaces
