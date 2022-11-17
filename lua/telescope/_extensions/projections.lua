@@ -34,6 +34,7 @@ local function project_finder(_)
 end
 
 local find_projects = function(opts)
+    local switcher = require("projections.switcher")
     opts = opts or {}
     pickers.new(opts, {
         prompt_title = "Projects",
@@ -44,7 +45,7 @@ local find_projects = function(opts)
                 actions.close(prompt_bufnr)
                 local selection = action_state.get_selected_entry()
                 if opts.action == nil then
-                    opts.action = function(selected) vim.fn.chdir(selected.value) end
+                    opts.action = function(selected) switcher.switch(selected.value) end
                 end
                 opts.action(selection)
             end)

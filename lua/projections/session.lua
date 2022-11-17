@@ -75,10 +75,6 @@ end
 -- @returns if operation was successful
 function Session.restore_from_session_file(spath)
     if config.restore_hooks.pre ~= nil then config.restore_hooks.pre() end
-    vim.cmd [[
-        %bdelete!
-        clearjumps
-    ]]
     -- TODO: correctly indicate errors here!
     vim.cmd("source " .. spath)
     if config.restore_hooks.post ~= nil then config.restore_hooks.post() end

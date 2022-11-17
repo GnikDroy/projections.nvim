@@ -84,26 +84,14 @@ use({
     config = function()
         require("projections").setup({})
 
-        -- Bind <leader>p to Telescope find_projects
-        -- on select, switch to project's root and attempt to load project's session
-        local Workspace = require("projections.workspace")
+        -- Bind <leader>fp to Telescope projections
         require('telescope').load_extension('projections')
-        vim.keymap.set("n", "<leader>fp", function()
-            local find_projects = require("telescope").extensions.projections.projections
-            find_projects({
-                action = function(selection)
-                    -- chdir is required since there might not be a session file
-                    vim.fn.chdir(selection.value)
-                    Session.restore(selection.value)
-                end,
-            })
-        end, { desc = "Find projects" })
+        vim.keymap.set("n", "<leader>fp", function() vim.cmd("Telescope projections") end)
 
         -- Autostore session on DirChange and VimExit
         local Session = require("projections.session")
         vim.api.nvim_create_autocmd({ 'DirChangedPre', 'VimLeavePre' }, {
             callback = function() Session.store(vim.loop.cwd()) end,
-            desc = "Store project session",
         })
     end
 })
@@ -119,6 +107,7 @@ The following lines register automatically restore last session.
 -- If in some project's root, attempt to restore's that project's session
 -- If not, restore last session
 -- If no sessions, do nothing
+local Session = require("projections.session")
 vim.api.nvim_create_autocmd({ "VimEnter" }, {
     callback = function()
         if vim.fn.argc() ~= 0 then return end
@@ -139,6 +128,7 @@ The following lines register two commands `StoreProjectSession` and `RestoreProj
 Both of them attempt to store/restore the session if `cwd` is a project directory.
 
 ```lua
+local Session = require("projections.session")
 vim.api.nvim_create_user_command("StoreProjectSession", function()
     Session.store(vim.loop.cwd())
 end, {})
@@ -154,6 +144,7 @@ The following example creates an `AddWorkspace command`
 which adds the current directory to workspaces file. Default set of `patterns` is used.
 
 ```lua
+local Workspace = require("projections.workspace")
 -- Add workspace command
 vim.api.nvim_create_user_command("AddWorkspace", function() 
     Workspace.add(vim.loop.cwd()) 
