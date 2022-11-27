@@ -45,7 +45,9 @@ local find_projects = function(opts)
                 actions.close(prompt_bufnr)
                 local selection = action_state.get_selected_entry()
                 if opts.action == nil then
-                    opts.action = function(selected) switcher.switch(selected.value) end
+                    opts.action = function(selected)
+                        if selected ~= nil then switcher.switch(selected.value) end
+                    end
                 end
                 opts.action(selection)
             end)
