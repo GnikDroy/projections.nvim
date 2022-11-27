@@ -14,10 +14,11 @@ M.switch = function(spath)
 
     local session_info = Session.info(spath)
     if session_info == nil then return false end
-    vim.fn.chdir(spath)
 
+    if vim.loop.cwd() ~= spath then Session.store(vim.loop.cwd()) end
+    vim.fn.chdir(spath)
     vim.cmd [[
-        %bdelete!
+        silent! %bdelete
         clearjumps
     ]]
     Session.restore(spath)
