@@ -53,9 +53,9 @@ use({
     config = function()
         require("projections").setup({
             workspaces = {                             -- Default workspaces to search for 
-                -- "~/dev",                               dev is a workspace. default patterns is used (specified below)
                 -- { "~/Documents/dev", { ".git" } },     Documents/dev is a workspace. patterns = { ".git" }
                 -- { "~/repos", {} },                     An empty pattern list indicates that all subfolders are considered projects
+                -- "~/dev",                               dev is a workspace. default patterns is used (specified below)
             },
             patterns = { ".git", ".svn", ".hg" },      -- Default patterns to use if none were specified. These are NOT regexps.
             store_hooks = { pre = nil, post = nil },   -- pre and post hooks for store_session, callable | nil
@@ -93,6 +93,14 @@ use({
         vim.api.nvim_create_autocmd({ 'DirChangedPre', 'VimLeavePre' }, {
             callback = function() Session.store(vim.loop.cwd()) end,
         })
+
+        -- Switch to project if vim was started in a project dir
+        local switcher = require("projections.switcher")
+        vim.api.nvim_create_autocmd({ "VimEnter" }, {
+            callback = function()
+                if vim.fn.argc() == 0 then switcher.switch(vim.loop.cwd()) end
+            end,
+        })
     end
 })
 ```
@@ -100,11 +108,11 @@ use({
 
 #### Automatically restore last session
 
-The following lines register automatically restore last session.
+The following lines setup an autocmd to automatically restore last session.
 
 ```lua
 -- If vim was started with arguments, do nothing
--- If in some project's root, attempt to restore's that project's session
+-- If in some project's root, attempt to restore that project's session
 -- If not, restore last session
 -- If no sessions, do nothing
 local Session = require("projections.session")
@@ -172,7 +180,7 @@ So expect the usability of this plugin to be greatly compromised if you don't us
 
 That being said, you can create your own project switcher with the exposed functions.
 
-# API
+## API
 
 The source files are documented for now. But this section will be completed in due time.
 The API is not stable. You might need to spend a couple of minutes every once in a while to update!
