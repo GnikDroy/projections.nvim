@@ -76,7 +76,7 @@ and recipes for different workflows.
 The recommended setup does the following:
 
 * Provides a telescope switcher for projects, which can be launched by `<leader>fp`
-* Saves project's session automatically on `DirChange` and `VimExit`
+* Saves project's session automatically on `VimExit`
 * Switch to project if nvim was started from a project root
 
 ```lua
@@ -89,9 +89,9 @@ use({
         require('telescope').load_extension('projections')
         vim.keymap.set("n", "<leader>fp", function() vim.cmd("Telescope projections") end)
 
-        -- Autostore session on DirChange and VimExit
+        -- Autostore session on VimExit
         local Session = require("projections.session")
-        vim.api.nvim_create_autocmd({ 'DirChangedPre', 'VimLeavePre' }, {
+        vim.api.nvim_create_autocmd({ 'VimLeavePre' }, {
             callback = function() Session.store(vim.loop.cwd()) end,
         })
 
