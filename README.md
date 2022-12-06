@@ -198,14 +198,18 @@ There are several other plugins that do not work well. There are several methods
 2. Store all such buffers, and then restore them accordingly. `see post restore hooks`
 3. Do nothing and handle the buffers manually, either at store or restore.
 
-For example, let's see how you can close `nvim-tree` before storing sessions:
+For example, let's see how you can close `nvim-tree`, or `neo-tree` before storing sessions:
 
 ```lua
 require("projections").setup({
     store_hooks = {
         pre = function()
-            local ret, api = pcall(require, "nvim-tree.api")
-            if ret then api.tree.close() end
+            -- nvim-tree 
+            local nvim_tree_present, api = pcall(require, "nvim-tree.api")
+            if nvim_tree_present then api.tree.close() end
+
+            -- neo-tree
+            if pcall(require, "neo-tree") then vim.cmd [[Neotree action=close]] end
         end
     }
 })
