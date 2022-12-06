@@ -77,6 +77,7 @@ The recommended setup does the following:
 
 * Provides a telescope switcher for projects, which can be launched by `<leader>fp`
 * Saves project's session automatically on `DirChange` and `VimExit`
+* Switch to project if nvim was started from a project root
 
 ```lua
 use({
@@ -197,6 +198,20 @@ There are several other plugins that do not work well. There are several methods
 2. Store all such buffers, and then restore them accordingly. `see post restore hooks`
 3. Do nothing and handle the buffers manually, either at store or restore.
 
+For example, let's see how you can close `nvim-tree` before storing sessions:
+
+```lua
+require("projections").setup({
+    store_hooks = {
+        pre = function()
+            local ret, api = pcall(require, "nvim-tree.api")
+            if ret then api.tree.close() end
+        end
+    }
+})
+```
+
 **Will such a functionality be present in `projections`?** Hard to say. This is not an easy problem to solve reliably.
 Option 2 sounds reasonable, but everyone has different needs.
 And since the user knows better than `projections`, I am inclined to push this responsibility to the user as well.
+If enough people ask for this, I may provide support for common plugins via something like `projections.unstable`
