@@ -77,8 +77,8 @@ function Workspace:directories()
     end
 end
 
--- Checks if given is a project folder in workspace
--- @param name The folder name
+-- Checks if given is a project directory in workspace
+-- @param name The directory name
 -- @returns if it is a project under workspace
 function Workspace:is_project(name)
     for _, pattern in ipairs(self.patterns) do

@@ -10,7 +10,7 @@ function Config.new()
     config.workspaces = {}
     config.patterns = { '.git', '.svn', '.hg' }
     config.workspaces_file = Path.new(vim.fn.stdpath("data")) .. "projections_workspaces.json"
-    config.sessions_folder = Path.new(vim.fn.stdpath("cache")) .. "projections_sessions"
+    config.sessions_directory = Path.new(vim.fn.stdpath("cache")) .. "projections_sessions"
     return config
 end
 
@@ -19,6 +19,9 @@ M.config = Config.new()
 
 M.merge = function(conf)
     M.config = vim.tbl_deep_extend("force", M.config, conf)
+    -- tbl_deep_extend doesn't copy metatables reliably
+    M.config.workspaces_file = setmetatable(M.config.workspaces_file, Path)
+    M.config.sessions_directory = setmetatable(M.config.sessions_directory, Path)
 end
 
 return M

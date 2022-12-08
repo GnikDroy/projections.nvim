@@ -45,21 +45,24 @@ This plugin also provides a small, and (completely optional) session manager for
 
 ## 🔌 Installation
 
-**The table provided to setup consists of default values for the options.**
+**The table provided to setup consists of default values for the options.** *None* of the arguments are required.
+Workspaces can be configured dynamically via a json file. See `AddWorkspace` command configuration below.
 
 ```lua
 use({ 
     'gnikdroy/projections.nvim',
     config = function()
         require("projections").setup({
-            workspaces = {                             -- Default workspaces to search for 
-                -- { "~/Documents/dev", { ".git" } },     Documents/dev is a workspace. patterns = { ".git" }
-                -- { "~/repos", {} },                     An empty pattern list indicates that all subfolders are considered projects
-                -- "~/dev",                               dev is a workspace. default patterns is used (specified below)
+            workspaces = {                                -- Default workspaces to search for 
+                -- { "~/Documents/dev", { ".git" } },        Documents/dev is a workspace. patterns = { ".git" }
+                -- { "~/repos", {} },                        An empty pattern list indicates that all subdirectories are considered projects
+                -- "~/dev",                                  dev is a workspace. default patterns is used (specified below)
             },
-            patterns = { ".git", ".svn", ".hg" },      -- Default patterns to use if none were specified. These are NOT regexps.
-            store_hooks = { pre = nil, post = nil },   -- pre and post hooks for store_session, callable | nil
-            restore_hooks = { pre = nil, post = nil }, -- pre and post hooks for restore_session, callable | nil
+            -- patterns = { ".git", ".svn", ".hg" },      -- Default patterns to use if none were specified. These are NOT regexps.
+            -- store_hooks = { pre = nil, post = nil },   -- pre and post hooks for store_session, callable | nil
+            -- restore_hooks = { pre = nil, post = nil }, -- pre and post hooks for restore_session, callable | nil
+            -- workspaces_file = "path/to/file",          -- Path to workspaces json file
+            -- sessions_directory = "path/to/dir",        -- Directory where sessions are stored
         })
     end
 })

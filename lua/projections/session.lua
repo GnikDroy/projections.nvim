@@ -28,22 +28,22 @@ function Session.info(spath)
     local path_hash = utils._fnv1a(tostring(workspace_path))
     local filename = string.format("%s_%u.vim", project_name, path_hash)
     return {
-        path = config.sessions_folder .. filename,
+        path = config.sessions_directory .. filename,
         project = Project.new(project_name, workspace)
     }
 end
 
--- Ensures sessions folder is available
+-- Ensures sessions directory is available
 -- @returns if operation was successful
-function Session._ensure_sessions_folder()
-    return vim.fn.mkdir(tostring(config.sessions_folder), "p") == 1
+function Session._ensure_sessions_directory()
+    return vim.fn.mkdir(tostring(config.sessions_directory), "p") == 1
 end
 
 -- Attempts to store the session
 -- @args spath String representing the path to the project root
 -- @returns if operation was successful
 function Session.store(spath)
-    Session._ensure_sessions_folder()
+    Session._ensure_sessions_directory()
     local session_info = Session.info(spath)
     if session_info == nil then return false end
     return Session.store_to_session_file(tostring(session_info.path))
@@ -64,7 +64,7 @@ end
 -- @args spath String representing the path to the project root
 -- @returns if operation was successful
 function Session.restore(spath)
-    Session._ensure_sessions_folder()
+    Session._ensure_sessions_directory()
     local session_info = Session.info(spath)
     if session_info == nil or not session_info.path:is_file() then return false end
     return Session.restore_from_session_file(tostring(session_info.path))
@@ -87,8 +87,8 @@ function Session.latest()
     local latest_session = nil
     local latest_timestamp = 0
 
-    for _, filename in ipairs(vim.fn.readdir(tostring(config.sessions_folder))) do
-        local session = config.sessions_folder .. filename
+    for _, filename in ipairs(vim.fn.readdir(tostring(config.sessions_directory))) do
+        local session = config.sessions_directory .. filename
         local timestamp = vim.fn.getftime(tostring(session))
         if timestamp > latest_timestamp then
             latest_session = session
