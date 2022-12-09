@@ -1,0 +1,24 @@
+name: gendocs
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    name: pandoc to vimdoc
+    steps:
+      - uses: actions/checkout@v2
+      - name: panvimdoc
+        uses: kdheepak/panvimdoc@main
+        with:
+          vimdoc: projections
+          description: A tiny project and session manager
+          version: "NVIM v0.7.0"
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_user_name: github_actions[bot]
+          commit_message: "docs: autogen vimdoc"
+          branch: ${{ github.head_ref }}

@@ -1,8 +1,19 @@
 # 🛸 projections.nvim
 
+<!-- panvimdoc-ignore-start -->
+
+![code size](https://img.shields.io/github/languages/code-size/gnikdroy/projections.nvim?style=flat-square)
+![license](https://img.shields.io/github/license/gnikdroy/projections.nvim?style=flat-square)
+
+<!-- panvimdoc-ignore-end -->
+
 A tiny **project** + sess**ions** manager for neovim, written in lua. Sessions support is optional.
 
+<!-- panvimdoc-ignore-start -->
+
 ![Project Telescope](https://user-images.githubusercontent.com/30725674/201514449-64b3a132-2147-4e07-b069-f02e57d389e4.gif)
+
+<!-- panvimdoc-ignore-end -->
 
 ## 🗺️ Quick Guide
 
