@@ -111,7 +111,7 @@ function Workspace:ignored(name)
     end
 
     for _, ignored_dir in ipairs(self.ignore_dirs) do
-        if tostring(self.path .. name) == ignored_dir then
+        if Path.new(tostring(ignored_dir)) == self.path .. name then
             return true
         end
     end
