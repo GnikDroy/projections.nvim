@@ -10,11 +10,13 @@ function Workspace.__eq(a, b) return a.path == b.path end
 -- Constructor
 -- @param path The path to the workspace
 -- @param patterns The patterns associated with the workspace
-function Workspace.new(path, patterns)
+function Workspace.new(path, patterns, ignore_patterns, ignore_dirs)
     local workspace = setmetatable({}, Workspace)
 
     workspace.path = path
     workspace.patterns = patterns
+    workspace.ignore_patterns = ignore_patterns
+    workspace.ignore_dirs = ignore_dirs
     return workspace
 end
 
@@ -24,13 +26,16 @@ end
 function Workspace.deserialize(tbl)
     -- has been configured for { path, patterns }
     if type(tbl) == "table" then
-        return Workspace.new(Path.new(tbl.path.path), tbl.patterns)
+        return Workspace.new(Path.new(tbl.path.path),
+            tbl.patterns, tbl.ignore_patterns, tbl.ignore_dirs)
     end
 
     -- has been configured for "path"
     if type(tbl) == "string" then
         local patterns = config.patterns
-        return Workspace.new(Path.new(tbl), patterns)
+        local ignore_patterns = config.ignore_patterns
+        local ignore_dirs = config.ignore_dirs
+        return Workspace.new(Path.new(tbl), patterns, ignore_patterns, ignore_dirs)
     end
     error("projections: deserializing workspaces file failed")
 end
@@ -53,7 +58,7 @@ function Workspace:projects()
     local projects = {}
 
     for _, dir in ipairs(self:directories()) do
-        if self:is_project(dir) then
+        if self:is_project(dir) and not self:ignored(dir) then
             table.insert(projects, Project.new(dir, self))
         end
     end
@@ -93,6 +98,28 @@ function Workspace:is_project(name)
     return next(self.patterns) == nil
 end
 
+-- Checks if given is a project is be ignored
+-- @param name The directory name
+-- @returns if it is a project under workspace
+function Workspace:ignored(name)
+    for _, pattern in ipairs(self.ignore_patterns) do
+        local f = (self.path .. name) .. pattern
+        if vim.fn.isdirectory(tostring(f)) == 1 or
+            vim.fn.filereadable(tostring(f)) == 1 then
+            return true
+        end
+    end
+
+    for _, ignored_dir in ipairs(self.ignore_dirs) do
+        if tostring(self.path .. name) == ignored_dir then
+            return true
+        end
+    end
+
+    -- If ignore_patterns and ignore_dirs is empty table then, select every subdirectory is a project
+    return next(self.ignore_patterns) == not nil and next(self.ignore_dirs) == not nil
+end
+
 -- Get list of all workspaces from persistent file
 -- @returns list of workspaces
 function Workspace.get_workspaces_from_file()
@@ -115,12 +142,14 @@ function Workspace.get_workspaces_from_config()
     for _, ws in ipairs(config.workspaces) do
         -- has been configured for { path, patterns }
         if type(ws) == "table" then
-            local path, patterns = unpack(ws)
-            table.insert(workspaces, Workspace.new(Path.new(path), patterns))
+            local path, patterns, ignore_patterns, ignore_dirs = unpack(ws)
+            table.insert(workspaces, Workspace.new(Path.new(path),
+                patterns, ignore_patterns, ignore_dirs))
         end
         -- has been configured for "path"
         if type(ws) == "string" then
-            table.insert(workspaces, Workspace.new(Path.new(ws), config.patterns))
+            table.insert(workspaces, Workspace.new(Path.new(ws),
+                config.patterns, config.ignore_patterns, config.ignore_dirs))
         end
     end
     workspaces = utils._unique_workspaces(workspaces)
