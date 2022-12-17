@@ -2,7 +2,7 @@
 
 <!-- panvimdoc-ignore-start -->
 
-![vimdoc workflow](https://img.shields.io/github/workflow/status/gnikdroy/projections.nvim/gendocs)
+![vimdoc workflow](https://img.shields.io/github/actions/workflow/status/gnikdroy/projections.nvim/gendocs.yml?branch=main)
 ![code size](https://img.shields.io/github/languages/code-size/gnikdroy/projections.nvim?style=flat-square)
 ![license](https://img.shields.io/github/license/gnikdroy/projections.nvim?style=flat-square)
 
