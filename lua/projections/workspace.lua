@@ -1,6 +1,7 @@
 local config = require("projections.config").config
 local utils = require("projections.utils")
 local Project = require("projections.project")
+local validators = require("projections.validators")
 
 local Workspace = {}
 Workspace.__index = Workspace
@@ -105,6 +106,7 @@ function Workspace.get_workspaces_from_file()
         end
     end
     workspaces = utils._unique_workspaces(workspaces)
+    validators.validate_workspaces_table(workspaces)
     return workspaces
 end
 
