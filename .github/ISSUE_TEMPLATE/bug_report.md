@@ -1,16 +1,23 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: "[bug] Concise title for the bug"
+title: "[bug] Bug title"
 labels: bug
 assignees: GnikDroy
 
 ---
 
+**Basic checklist**
+- [ ] I have read the README
+- [ ] I have read the wiki
+- [ ] I have read `:h session`, `:h mksession`, and `:h sessionoptions`
+- [ ] I have searched through existing/closed issues
+- [ ] I have checked if the recommended config has changed, and if that solves my issue.
+
 **Expected vs Actual behavior**
 A clear and concise description of the bug
 
-**Please fill out the information below**
+**Environment information**
 - Neovim version:
 - Operating system:
 - Projections branch/commit hash:
