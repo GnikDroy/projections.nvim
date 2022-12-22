@@ -38,4 +38,38 @@ function Path:parent()
     return Path.new(vim.fn.fnamemodify(self.path, ":h"))
 end
 
+-- Gets list of directories in path
+-- @returns table List of directory names
+function Path:directories()
+    local dirs = {}
+
+    -- Check if we can iterate over the directories
+    local dir = vim.loop.fs_scandir(tostring(self.path))
+    if dir == nil then return dirs end
+
+    -- iterate over workspace and return all directories
+    while true do
+        local file, type = vim.loop.fs_scandir_next(dir)
+        if file == nil then return dirs end
+        if type == "directory" then table.insert(dirs, file) end
+    end
+end
+
+-- Gets list of files (including directories) in path
+-- @returns table List of filenames
+function Path:files()
+    local dirs = {}
+
+    -- Check if we can iterate over the directories
+    local dir = vim.loop.fs_scandir(tostring(self.path))
+    if dir == nil then return dirs end
+
+    -- iterate over workspace and return all directories
+    while true do
+        local file, _ = vim.loop.fs_scandir_next(dir)
+        if file == nil then return dirs end
+        table.insert(dirs, file)
+    end
+end
+
 return Path

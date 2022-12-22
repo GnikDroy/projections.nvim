@@ -1,5 +1,43 @@
 local M = {}
 
+-- Autocorrect incorrect pattern specifications
+-- This function is meant to be conservative (no false positives) and
+-- only corrects and notifies common errors.
+--
+-- @param workspace_path The path to the workspace
+-- @param patterns The pattern list
+M.autocorrect_patterns = function(workspace_path, patterns)
+    local notify_incorrect_pattern = function(actual, expected)
+        vim.notify(
+            string.format(
+                "projections.config: Autocorrected incorrect pattern.\n\n" ..
+                "Workspace: '%s'\n" ..
+                "'%s' -> '%s'\n\n" ..
+                "Update the pattern to remove this message.",
+                workspace_path, actual, expected
+            ), vim.log.levels.INFO
+        )
+    end
+
+    local autocorrect_entries = {
+        { '.git', '^%.git$' },
+        { '.svn', '^%.svn$' },
+        { '.hg', '^%.hg$' },
+        { '.gitignore', '^%.gitignore$' },
+        { 'package.json', '^package%.json$' },
+        { 'Cargo.toml', '^Cargo%.toml$' },
+    }
+    for i, pattern in ipairs(patterns) do
+        for _, entry in ipairs(autocorrect_entries) do
+            local actual, expected = unpack(entry)
+            if pattern == actual then
+                notify_incorrect_pattern(actual, expected)
+                patterns[i] = expected
+            end
+        end
+    end
+end
+
 -- Assert value is of some type or throw error with custom message
 -- @param expected_types table of possible expected types
 -- @param value The value to check
