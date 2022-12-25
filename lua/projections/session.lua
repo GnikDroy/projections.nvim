@@ -25,12 +25,19 @@ function Session.info(spath)
     end
     if workspace == nil or not workspace:is_project(project_name) then return nil end
 
-    local path_hash = utils._fnv1a(tostring(workspace_path))
-    local filename = string.format("%s_%u.vim", project_name, path_hash)
+    local filename = Session.session_filename(tostring(workspace_path), project_name)
     return {
         path = config.sessions_directory .. filename,
         project = Project.new(project_name, workspace)
     }
+end
+
+-- Returns the session filename for project
+-- @args workspace_path string The path to workspace
+-- @returns project_name string Name of project
+function Session.session_filename(workspace_path, project_name)
+    local path_hash = utils._fnv1a(workspace_path)
+    return string.format("%s_%u.vim", project_name, path_hash)
 end
 
 -- Ensures sessions directory is available
