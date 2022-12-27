@@ -9,6 +9,8 @@ function Config.new()
     config.restore_hooks = { pre = nil, post = nil }
     config.workspaces = {}
     config.patterns = { '.git', '.svn', '.hg' }
+    config.ignore_patterns = {}
+    config.ignore_dirs = {}
     config.workspaces_file = Path.new(vim.fn.stdpath("data")) .. "projections_workspaces.json"
     config.sessions_directory = Path.new(vim.fn.stdpath("cache")) .. "projections_sessions"
     return config
