@@ -8,7 +8,8 @@ function Path.__concat(a, b)
 end
 
 function Path.__eq(a, b)
-    return a.path == b.path
+    return a.path == b.path or
+        not vim.fn.has("fname_case") and string.lower(a.path) == string.lower(b.path)
 end
 
 -- Path constructor
