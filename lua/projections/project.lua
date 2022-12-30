@@ -1,9 +1,14 @@
+---@class Project
+---@field name string Name of the project
+---@field workspace Workspace Workspace project is from
 local Project = {}
 Project.__index = Project
 
 -- Constructor
--- @param name Name of the project
--- @param workspace The workspace of the project
+---@param name string Name of the project
+---@param workspace Workspace The workspace of the project
+---@return Project
+---@nodiscard
 function Project.new(name, workspace)
     local project = setmetatable({}, Project)
     project.name = name
@@ -12,7 +17,8 @@ function Project.new(name, workspace)
 end
 
 -- Returns the path to the project
--- @returns path to project
+---@return Path
+---@nodiscard
 function Project:path()
     return self.workspace.path .. self.name
 end
