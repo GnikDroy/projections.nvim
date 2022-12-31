@@ -24,6 +24,7 @@ function Workspace.__eq(a, b) return a.path == b.path end
 ---@nodiscard
 function Workspace.new(path, patterns)
     local workspace = setmetatable({}, Workspace)
+    validators.autocorrect_patterns(path, patterns)
 
     workspace.path = path
     workspace.patterns = patterns
@@ -59,7 +60,7 @@ end
 function Workspace:projects()
     local projects = {}
 
-    for _, dir in ipairs(self:directories()) do
+    for _, dir in ipairs(self.path:directories()) do
         if self:is_project(dir) then
             table.insert(projects, Project.new(dir, self))
         end
@@ -67,38 +68,22 @@ function Workspace:projects()
     return projects
 end
 
--- Gets list of directories in the workspace
----@return string[]
----@nodiscard
-function Workspace:directories()
-    local dirs = {}
-
-    -- Check if we can iterate over the directories
-    local dir = vim.loop.fs_scandir(tostring(self.path))
-    if dir == nil then return dirs end
-
-    -- iterate over workspace and return all directories
-    while true do
-        local file, type = vim.loop.fs_scandir_next(dir)
-        if file == nil then return dirs end
-        if type == "directory" then table.insert(dirs, file) end
-    end
-end
 
 -- Checks if given is a project directory in workspace
 ---@param name string The directory name
 ---@return boolean
 ---@nodiscard
 function Workspace:is_project(name)
-    for _, pattern in ipairs(self.patterns) do
-        local f = (self.path .. name) .. pattern
-        if vim.fn.isdirectory(tostring(f)) == 1 or
-            vim.fn.filereadable(tostring(f)) == 1 then
-            return true
+    local project_path = self.path .. name
+    for _, filename in ipairs(project_path:files()) do
+        for _, pattern in ipairs(self.patterns) do
+            if string.match(filename, pattern) ~= nil then
+                return true
+            end
         end
     end
 
-    -- If patterns is empty table then, select every subdirectory is a project
+    -- If patterns is an empty table then unconditionally return true
     return next(self.patterns) == nil
 end
 

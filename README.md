@@ -41,12 +41,12 @@ Grandchildren are not considered projects.
 
 A project is any subdirectory of a workspace which contains a file/directory present in `patterns`.
 
-For instance, if `patterns` is `{ ".git", ".svn", ".hg" }`, then all Git, SVN,
+For instance, if `patterns` is `{ "^%.git$", "^%.svn$", "^%.hg$" }`, then all Git, SVN,
 and Mercurial repositories under workspace `W` are considered projects.
 
 > In the figure above, `A`, and `B` are projects. `D` and `E` are **not** projects.
 
-You can get creative with this, `{ "package.json" }`, would classify all `npm` packages as projects.
+You can get creative with this, `{ "^package%.json$" }`, would classify all `npm` packages as projects.
 
 *See `projections.init.setup`, or the next section for more details on `patterns`*
 
@@ -65,16 +65,16 @@ use({
     'gnikdroy/projections.nvim',
     config = function()
         require("projections").setup({
-            workspaces = {                                -- Default workspaces to search for 
-                -- { "~/Documents/dev", { ".git" } },        Documents/dev is a workspace. patterns = { ".git" }
-                -- { "~/repos", {} },                        An empty pattern list indicates that all subdirectories are considered projects
-                -- "~/dev",                                  dev is a workspace. default patterns is used (specified below)
+            workspaces = {                                    -- Default workspaces to search for 
+                -- { "~/Documents/dev", { "^%.git$" } },         Documents/dev is a workspace. patterns = { "^%.git$" }
+                -- { "~/repos", {} },                            An empty pattern list indicates that all subdirectories are considered projects
+                -- "~/dev",                                      dev is a workspace. default patterns is used (specified below)
             },
-            -- patterns = { ".git", ".svn", ".hg" },      -- Default patterns to use if none were specified. These are NOT regexps.
-            -- store_hooks = { pre = nil, post = nil },   -- pre and post hooks for store_session, callable | nil
-            -- restore_hooks = { pre = nil, post = nil }, -- pre and post hooks for restore_session, callable | nil
-            -- workspaces_file = "path/to/file",          -- Path to workspaces json file
-            -- sessions_directory = "path/to/dir",        -- Directory where sessions are stored
+            -- patterns = { "^%.git$", "^%.svn$", "^%.hg$" }, -- Default patterns to use if none were specified. These are lua patterns.
+            -- store_hooks = { pre = nil, post = nil },       -- pre and post hooks for store_session, callable | nil
+            -- restore_hooks = { pre = nil, post = nil },     -- pre and post hooks for restore_session, callable | nil
+            -- workspaces_file = "path/to/file",              -- Path to workspaces json file
+            -- sessions_directory = "path/to/dir",            -- Directory where sessions are stored
         })
     end
 })
