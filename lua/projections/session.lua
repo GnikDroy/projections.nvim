@@ -6,10 +6,14 @@ local Project = require("projections.project")
 local Session = {}
 Session.__index = Session
 
+
+---@alias SessionInfo { path: Path, project: Project }
+
 -- Returns the path of the session file as well as project information
 -- Returns nil if path is not a valid project path
--- @args spath The path to project root
--- @returns nil | path of session file and project information
+---@param spath string The path to project root
+---@return nil | SessionInfo
+---@nodiscard
 function Session.info(spath)
     -- check if path is some project's root
     local path = Path.new(spath)
@@ -25,23 +29,32 @@ function Session.info(spath)
     end
     if workspace == nil or not workspace:is_project(project_name) then return nil end
 
-    local path_hash = utils._fnv1a(tostring(workspace_path))
-    local filename = string.format("%s_%u.vim", project_name, path_hash)
+    local filename = Session.session_filename(tostring(workspace_path), project_name)
     return {
         path = config.sessions_directory .. filename,
         project = Project.new(project_name, workspace)
     }
 end
 
+-- Returns the session filename for project
+---@param workspace_path string The path to workspace
+---@param project_name string Name of project
+---@return string
+---@nodiscard
+function Session.session_filename(workspace_path, project_name)
+    local path_hash = utils._fnv1a(workspace_path)
+    return string.format("%s_%u.vim", project_name, path_hash)
+end
+
 -- Ensures sessions directory is available
--- @returns if operation was successful
+---@return boolean
 function Session._ensure_sessions_directory()
     return vim.fn.mkdir(tostring(config.sessions_directory), "p") == 1
 end
 
 -- Attempts to store the session
--- @args spath String representing the path to the project root
--- @returns if operation was successful
+---@param spath string Path to the project root
+---@return boolean
 function Session.store(spath)
     Session._ensure_sessions_directory()
     local session_info = Session.info(spath)
@@ -50,8 +63,8 @@ function Session.store(spath)
 end
 
 -- Attempts to store to session file
--- @args spath String representing the path to the session file
--- @returns if operation was successful
+---@param spath string Path to the session file
+---@returns boolean
 function Session.store_to_session_file(spath)
     if config.store_hooks.pre ~= nil then config.store_hooks.pre() end
     -- TODO: correctly indicate errors here!
@@ -61,8 +74,8 @@ function Session.store_to_session_file(spath)
 end
 
 -- Attempts to restore a session
--- @args spath String representing the path to the project root
--- @returns if operation was successful
+---@param spath string Path to the project root
+---@return boolean
 function Session.restore(spath)
     Session._ensure_sessions_directory()
     local session_info = Session.info(spath)
@@ -71,8 +84,8 @@ function Session.restore(spath)
 end
 
 -- Attempts to restore a session from session file
--- @args spath String representing path to session file
--- @returns if operation was successful
+---@param spath string Path to session file
+---@return boolean
 function Session.restore_from_session_file(spath)
     if config.restore_hooks.pre ~= nil then config.restore_hooks.pre() end
     -- TODO: correctly indicate errors here!
@@ -82,7 +95,8 @@ function Session.restore_from_session_file(spath)
 end
 
 -- Get latest session
--- @returns nil | path to latest session
+---@return nil | Path
+---@nodiscard
 function Session.latest()
     local latest_session = nil
     local latest_timestamp = 0
@@ -99,7 +113,7 @@ function Session.latest()
 end
 
 -- Restore latest session
--- @returns if operation was successful
+---@return boolean
 function Session.restore_latest()
     local latest_session = Session.latest()
     if latest_session == nil then return false end

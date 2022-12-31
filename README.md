@@ -184,6 +184,21 @@ vim.api.nvim_create_user_command("AddWorkspace", function()
 end, {})
 ```
 
+The json file format is as follows:
+
+```json
+[
+    {
+        "path": "/path/to/workspace",
+        "patterns": ["list", "of", "patterns"]
+    },
+    {
+        "path": "/tmp",
+        "patterns": [".git", ".svn", ".hg"]
+    }
+]
+```
+
 ### Intended usage
 
 > You are responsible for creating a clear folder structure for your projects!

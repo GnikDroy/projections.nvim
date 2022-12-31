@@ -4,8 +4,8 @@ local utils = require("projections.utils")
 local M = {}
 
 -- Attempts to switch projects and load the session file.
--- @args spath String representing path to project root
--- @returns if operation was successful
+---@param spath string Path to project root
+---@return boolean
 M.switch = function(spath)
     if utils._unsaved_buffers_present() then
         vim.notify("projections: Unsaved buffers. Unable to switch projects", vim.log.levels.WARN)

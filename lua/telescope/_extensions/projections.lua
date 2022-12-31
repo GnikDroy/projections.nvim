@@ -6,7 +6,7 @@ local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
 local conf = require("telescope.config").values
 
-local function project_finder(_)
+local function project_finder(opts)
     local workspaces = require("projections.workspace").get_workspaces()
     local projects = {}
     for _, ws in ipairs(workspaces) do
@@ -15,16 +15,17 @@ local function project_finder(_)
         end
     end
 
-    local display = entry_display.create({
-        items = { { width = 35 }, { remaining = true } },
-        separator = " ",
-    })
-
     return finders.new_table({
         results = projects,
-        entry_maker = function(project)
+        entry_maker = opts.entry_maker or function(project)
             return {
-                display = function(e) return display({ e.name, { e.value, "Comment" } }) end,
+                display = function(e)
+                    local display = entry_display.create({
+                        items = { { width = 35 }, { remaining = true } },
+                        separator = " ",
+                    })
+                    return display({ e.name, { e.value, "Comment" } })
+                end,
                 name = project.name,
                 value = tostring(project:path()),
                 ordinal = tostring(project:path()),
@@ -34,12 +35,29 @@ local function project_finder(_)
 end
 
 local find_projects = function(opts)
-    local switcher = require("projections.switcher")
     opts = opts or {}
+
+    -- Sort by recent implemented by
+    -- hooking into the default scoring function, of generic_sorter
+    -- we check if prompt is empty, if so, score by file modification time (inverted)
+    -- if prompt is not empty, use the default scoring function
+    local config = require("projections.config").config
+    local Session = require("projections.session")
+    local sorter = conf.generic_sorter(opts)
+    local default_scoring_function = sorter.scoring_function
+    sorter.scoring_function = function(_sorter, prompt, line, ...)
+        if prompt == '' then
+            local session_filename = Session.session_filename(vim.fn.fnamemodify(line, ":h"), vim.fs.basename(line))
+            return 1 / math.abs(vim.fn.getftime(tostring(config.sessions_directory .. session_filename)))
+        end
+        return default_scoring_function(_sorter, prompt, line, ...)
+    end
+
+    local switcher = require("projections.switcher")
     pickers.new(opts, {
         prompt_title = "Projects",
         finder = project_finder(opts),
-        sorter = conf.generic_sorter(opts),
+        sorter = sorter,
         attach_mappings = function(prompt_bufnr)
             actions.select_default:replace(function()
                 actions.close(prompt_bufnr)
