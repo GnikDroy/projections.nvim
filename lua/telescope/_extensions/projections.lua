@@ -65,7 +65,7 @@ local find_projects = function(opts)
                 if opts.action == nil then
                     opts.action = function(selected)
                         if selected ~= nil and selected.value ~= vim.loop.cwd() then
-                            switcher.switch(selected.value)
+                            switcher:switch(selected.value)
                         end
                     end
                 end

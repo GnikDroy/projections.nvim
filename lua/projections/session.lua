@@ -112,12 +112,4 @@ function Session.latest()
     return latest_session
 end
 
--- Restore latest session
----@return boolean
-function Session.restore_latest()
-    local latest_session = Session.latest()
-    if latest_session == nil then return false end
-    return Session.restore_from_session_file(tostring(latest_session))
-end
-
 return Session

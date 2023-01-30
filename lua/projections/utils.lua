@@ -1,5 +1,33 @@
 local M = {}
 
+local split = function(inputString, sep)
+  local fields = {}
+  local pattern = string.format("([^%s]+)", sep)
+  local _ = string.gsub(inputString, pattern, function(c)
+    fields[#fields + 1] = c
+  end)
+
+  return fields
+end
+
+M.project_name_from_session_filepath = function(filepath)
+  local file_name = vim.fn.fnamemodify(filepath, ":p:t")
+  local split_name = split(file_name, "_")
+  -- Remove the session identifier (everyting beyond the last '_')
+  table.remove(split_name)
+  return table.concat(split_name)
+end
+
+-- Gets a project directory from a session file
+---@param filepath string Filepath for session file
+---@return string
+M.project_dir_from_session_file = function(filepath)
+  local session = vim.fn.readfile(filepath)
+  -- Directory for session is found on line 6. It is preceded by "cd ", so we take a substring
+  local project_dir = string.sub(session[6], 3, -1)
+  return project_dir
+end
+
 -- Checks if unsaved buffers are present
 ---@return boolean
 ---@nodiscard
