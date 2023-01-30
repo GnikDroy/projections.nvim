@@ -23,7 +23,8 @@ end
 -- @param name string Name of the project
 -- return nil | ProjectInfo
 ---@nodiscard
-local create_project_info = function(path, name)
+local create_project_info = function(path)
+  local name = utils.project_name_from_session_filepath(path)
   return name and path and {
     path = path,
     project = name,
@@ -59,7 +60,8 @@ function M:switch(spath)
         silent! %bdelete
         clearjumps
         ]]
-  self._current = create_project_info(utils.project_name_from_session_filepath(spath))
+  self._current = create_project_info(spath)
+
   if Session.restore(spath) then
     vim.schedule(function() print("Restored session for project: ", spath) end)
   end
