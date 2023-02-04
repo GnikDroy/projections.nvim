@@ -58,7 +58,10 @@ end
 function Session.store(spath)
     Session._ensure_sessions_directory()
     local session_info = Session.info(spath)
-    if session_info == nil then return false end
+    local Switcher = require("projections.switcher")
+    local current_project = Switcher:get_current()
+    -- Don't store session if no session info or currently not in a project
+    if session_info == nil or current_project == nil or #current_project.path == 0 then return false end
     return Session.store_to_session_file(tostring(session_info.path))
 end
 
