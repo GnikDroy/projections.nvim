@@ -37,7 +37,7 @@ function M:last()
   local latest_session = Session.latest()
   if latest_session ~= nil then
     local project_dir = utils.project_dir_from_session_file(tostring(latest_session))
-    return self:switch(project_dir)
+    return self:switch(vim.fn.expand(project_dir))
   end
   return false
 end
