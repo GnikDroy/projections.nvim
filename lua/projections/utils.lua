@@ -24,7 +24,7 @@ end
 M.project_dir_from_session_file = function(filepath)
   local session = vim.fn.readfile(filepath)
   -- Directory for session is found on line 6. It is preceded by "cd ", so we take a substring
-  local project_dir = string.sub(session[6], 3, -1)
+  local project_dir = string.sub(session[6], 4, -1)
   return project_dir
 end
 
