@@ -19,14 +19,7 @@ function Session.info(spath)
     local path = Path.new(spath)
     local project_name = path:basename()
     local workspace_path = path:parent()
-    local all_workspaces = Workspace.get_workspaces()
-    local workspace = nil
-    for _, ws in ipairs(all_workspaces) do
-        if workspace_path == ws.path then
-            workspace = ws
-            break
-        end
-    end
+    local workspace = Workspace.find(workspace_path)
     if workspace == nil or not workspace:is_project(project_name) then return nil end
 
     local filename = Session.session_filename(tostring(workspace_path), project_name)
@@ -59,9 +52,10 @@ function Session.store(spath)
     Session._ensure_sessions_directory()
     local session_info = Session.info(spath)
     local Switcher = require("projections.switcher")
-    local current_project = Switcher:get_current()
     -- Don't store session if no session info or currently not in a project
-    if session_info == nil or current_project == nil or #current_project:path() == 0 then return false end
+    if session_info == nil or not Switcher:in_project() then
+        return false
+    end
     return Session.store_to_session_file(tostring(session_info.path))
 end
 
@@ -94,9 +88,6 @@ function Session.restore_from_session_file(spath)
     -- TODO: correctly indicate errors here!
     vim.cmd("silent! source " .. spath)
     if config.restore_hooks.post ~= nil then config.restore_hooks.post() end
-    -- If successful, formally set project
-    local Switcher = require("projections.switcher")
-    Switcher:set_current()
     return true
 end
 

@@ -153,6 +153,22 @@ function Workspace.get_workspaces()
     return utils._unique_workspaces(workspaces)
 end
 
+-- Returns the workspace for a given workspace path
+---@param workspace_path Path Workspace path of workspace to search for
+---@return Workspace[]
+---@nodiscard
+function Workspace.find(workspace_path)
+    local all_workspaces = Workspace.get_workspaces()
+    local workspace = nil
+    for _, ws in ipairs(all_workspaces) do
+        if workspace_path == ws.path then
+            workspace = ws
+            break
+        end
+    end
+    return workspace
+end
+
 -- Add workspace to workspaces file
 ---@param spath string String representation of path. Can be unnormalized
 ---@param patterns Patterns The patterns for workspace
