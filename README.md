@@ -114,7 +114,7 @@ use({
         local switcher = require("projections.switcher")
         vim.api.nvim_create_autocmd({ "VimEnter" }, {
             callback = function()
-                if vim.fn.argc() == 0 then switcher.switch(vim.loop.cwd()) end
+                if vim.fn.argc() == 0 then switcher:switch(vim.loop.cwd()) end
             end,
         })
     end
