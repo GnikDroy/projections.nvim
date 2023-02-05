@@ -23,7 +23,7 @@ end
 function Project.new_from_dir(dir_path)
     local path = Path.new(dir_path)
     local name = path:basename()
-    local workspace = path:parent()
+    local workspace = require("projections.workspace").new(path:parent())
     local project = setmetatable({}, Project)
     project.name = name
     project.workspace = workspace
@@ -34,6 +34,7 @@ end
 ---@return Path
 ---@nodiscard
 function Project:path()
+    if not self.workspace or not self.name then return Path.new("") end
     return self.workspace.path .. self.name
 end
 

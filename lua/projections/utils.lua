@@ -1,9 +1,13 @@
 local M = {}
 
-local split = function(inputString, sep)
+-- Splits a string at all instances of provided 'separator'
+---@param input_string string String to separate
+---@param sep string Separator to split on
+---@return Table
+local split = function(input_string, sep)
   local fields = {}
   local pattern = string.format("([^%s]+)", sep)
-  local _ = string.gsub(inputString, pattern, function(c)
+  local _ = string.gsub(input_string, pattern, function(c)
     fields[#fields + 1] = c
   end)
 
@@ -30,6 +34,16 @@ M._unsaved_buffers_present = function()
         end
     end
     return false
+end
+
+-- Gets number of valid buffers currently open
+---@return integer
+M._num_valid_buffers = function()
+    local get_ls = vim.tbl_filter(function(buf)
+        return vim.api.nvim_buf_is_valid(buf)
+                and vim.api.nvim_buf_get_option(buf, 'buflisted')
+    end, vim.api.nvim_list_bufs())
+    return #get_ls
 end
 
 -- Calculate fnv1a hash
