@@ -2,15 +2,11 @@ local Session = require("projections.session")
 local Project = require("projections.project")
 local utils = require("projections.utils")
 
----@alias ProjectInfo { path: Path, project: Project }
-local initial_project_info = {
-  project = "",
-  path = "",
-}
+local initial_project_info = {}
 
 local M = {}
 
-M._current = initial_project_info;
+M._current = Project;
 
 -- Attempts to return the current active project
 ----@return ProjectInfo
@@ -18,17 +14,12 @@ function M:get_current()
   return self._current;
 end
 
--- Creates a table of all necessary information about a project
--- @param path string Path to the project's root directory
--- @param name string Name of the project
--- return nil | ProjectInfo
----@nodiscard
-local create_project_info = function(path)
-  local name = utils.project_name_from_session_filepath(path)
-  return name and path and {
-    path = path,
-    project = name,
-  } or nil
+-- Attempts to set the current active project, with no args passed, unsets current project
+-- @param project_info ProjectInfo table of information about the project to set as the current one
+----@return boolean
+local M:set_current(project_info)
+  self._current = project_info or initial_project_info
+  return true
 end
 
 -- Attempts to switch to the last loaded project
@@ -37,33 +28,40 @@ function M:last()
   local latest_session = Session.latest()
   if latest_session ~= nil then
     local project_dir = utils.project_dir_from_session_file(tostring(latest_session))
-    return self:switch(vim.fn.expand(project_dir))
+    -- "expand" for OS compatiblity (Windows)
+    project_dir = vim.fn.expand(project_dir)
+    return self:switch(Project.new_from_dir(project_dir))
   end
   return false
 end
 
 -- Attempts to switch projects and load the session file.
----@param spath string Path to project root
+---@param new_project Project table describing project to switch to
 ---@return boolean
-function M:switch(spath)
+function M:switch(new_project)
+  local new_path = new_project:path()
   if utils._unsaved_buffers_present() then
     vim.notify("projections: Unsaved buffers. Unable to switch projects", vim.log.levels.WARN)
     return false
   end
 
-  local session_info = Session.info(spath)
-  if session_info == nil then return false end
-
-  if vim.loop.cwd() ~= spath then Session.store(vim.loop.cwd()) end
-  vim.cmd("noautocmd cd " .. spath)
+  -- Attempt to store current session before moving on to a new project
+  if new_path ~= self._current:path() then Session.store(vim.loop.cwd()) end
+  vim.cmd("noautocmd cd " .. new_path)
   vim.cmd [[
         silent! %bdelete
         clearjumps
         ]]
-  self._current = create_project_info(spath)
 
-  if Session.restore(spath) then
-    vim.schedule(function() print("Restored session for project: ", spath) end)
+  -- Formally set the current project
+  self._current = new_project
+
+  -- If there's a session for the project we're switching to, attempt to restore it
+  local session_info = Session.info(new_path)
+  if session_info == nil then return false expand
+
+  if Session.restore(new_path) then
+    vim.schedule(function() print("Restored session for project: ", new_path) end)
   end
   return true
 end

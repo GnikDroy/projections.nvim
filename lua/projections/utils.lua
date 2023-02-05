@@ -10,14 +10,6 @@ local split = function(inputString, sep)
   return fields
 end
 
-M.project_name_from_session_filepath = function(filepath)
-  local file_name = vim.fn.fnamemodify(filepath, ":p:t")
-  local split_name = split(file_name, "_")
-  -- Remove the session identifier (everyting beyond the last '_')
-  table.remove(split_name)
-  return table.concat(split_name)
-end
-
 -- Gets a project directory from a session file
 ---@param filepath string Filepath for session file
 ---@return string

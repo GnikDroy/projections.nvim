@@ -94,6 +94,9 @@ function Session.restore_from_session_file(spath)
     -- TODO: correctly indicate errors here!
     vim.cmd("silent! source " .. spath)
     if config.restore_hooks.post ~= nil then config.restore_hooks.post() end
+    -- If successful, formally set project
+    local Switcher = require("projections.switcher")
+    Switcher:set_current()
     return true
 end
 
