@@ -24,7 +24,7 @@ M._fnv1a = function(s)
         hash = bit.bxor(hash, s:byte(i))
         hash = hash * prime
     end
-    return hash
+    return tonumber(hash)
 end
 
 -- Returns unique workspaces in list
