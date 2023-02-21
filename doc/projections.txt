@@ -4,13 +4,13 @@
 Table of Contents                              *projections-table-of-contents*
 
 1. 🛸 projections.nvim                   |projections-🛸-projections.nvim|
-  - 🗺️ Quick Guide                      |projections-🗺️-quick-guide|
-  - 🔌 Installation                          |projections-🔌-installation|
-  - 🛠️ Configuration                  |projections-🛠️-configuration|
-  - 🔭 About Telescope                    |projections-🔭-about-telescope|
-  - 💻 API                                            |projections-💻-api|
-  - 📦 Interaction with plugins  |projections-📦-interaction-with-plugins|
-  - ❓ Further queries                      |projections-❓-further-queries|
+  - 🗺️ Quick Guide|projections-🛸-projections.nvim-🗺️-quick-guide|
+  - 🔌 Installation    |projections-🛸-projections.nvim-🔌-installation|
+  - 🛠️ Configuration|projections-🛸-projections.nvim-🛠️-configuration|
+  - 🔭 About Telescope|projections-🛸-projections.nvim-🔭-about-telescope|
+  - 💻 API                      |projections-🛸-projections.nvim-💻-api|
+  - 📦 Interaction with plugins|projections-🛸-projections.nvim-📦-interaction-with-plugins|
+  - ❓ Further queries|projections-🛸-projections.nvim-❓-further-queries|
 
 ==============================================================================
 1. 🛸 projections.nvim                   *projections-🛸-projections.nvim*
@@ -18,11 +18,13 @@ Table of Contents                              *projections-table-of-contents*
 A tiny **project** + sess**ions** manager for neovim, written in lua. Sessions
 support is optional.
 
-🗺️ QUICK GUIDE                          *projections-🗺️-quick-guide*
+
+🗺️ QUICK GUIDE    *projections-🛸-projections.nvim-🗺️-quick-guide*
+
 
 TERMINOLOGIES ~
 
->
+>haskell
     ─── W
         ├── A
         │   └── .git
@@ -34,24 +36,18 @@ TERMINOLOGIES ~
 <
 
 
-                                                       *projections-Workspace*
+WORKSPACE
 
-Workspace                              A workspace is a directory that contains
-                                       projects as their children. That’s it.
-                                       Grandchildren are not considered
-                                       projects.
-
+A workspace is a directory that contains projects as their children. That’s
+it. Grandchildren are not considered projects.
 
 
   In the figure above, `W` is a workspace
 
+PROJECT
 
-                                                         *projections-Project*
-
-Project                                A project is any subdirectory of a
-                                       workspace which contains a
-                                       file/directory present in `patterns`.
-
+A project is any subdirectory of a workspace which contains a file/directory
+present in `patterns`.
 
 For instance, if `patterns` is `{ ".git", ".svn", ".hg" }`, then all Git, SVN,
 and Mercurial repositories under workspace `W` are considered projects.
@@ -59,31 +55,26 @@ and Mercurial repositories under workspace `W` are considered projects.
 
   In the figure above, `A`, and `B` are projects. `D` and `E` are **not**
   projects.
-
-
 You can get creative with this, `{ "package.json" }`, would classify all `npm`
 packages as projects.
 
-_See `projections.init.setup`, or the next section for more details on
-`patterns`_
-
-                                                        *projections-Sessions*
-
-Sessions                               This plugin also provides a small, and
-                                       (completely optional) session manager
-                                       for projects. **It is only intended to
-                                       work with projections’ projects!**.
-                                       See, `:h session` and
-                                       `projections.session`
+_See projections.init.setup, or the next section for more details on patterns_
 
 
-🔌 INSTALLATION                              *projections-🔌-installation*
+SESSIONS
+
+This plugin also provides a small, and (completely optional) session manager
+for projects. **It is only intended to work with projections’ projects!**.
+See, `:h session` and `projections.session`
+
+
+🔌 INSTALLATION        *projections-🛸-projections.nvim-🔌-installation*
 
 **The table provided to setup consists of default values for the options.**
 _None_ of the arguments are required. Workspaces can be configured dynamically
 via a json file. See `AddWorkspace` command configuration below.
 
->
+>lua
     use({ 
         'gnikdroy/projections.nvim',
         config = function()
@@ -104,11 +95,12 @@ via a json file. See `AddWorkspace` command configuration below.
 <
 
 
-🛠️ CONFIGURATION                      *projections-🛠️-configuration*
+🛠️ CONFIGURATION*projections-🛸-projections.nvim-🛠️-configuration*
 
 `projections` doesn’t register commands or keybindings. It leaves you with
 100% control. As this might be inconvenient to some, this section comes with a
 recommended configuration and recipes for different workflows.
+
 
 RECOMMENDED CONFIGURATION ~
 
@@ -119,8 +111,7 @@ The recommended setup does the following:
 - Saves project’s session automatically on `VimExit`
 - Switch to project if nvim was started from a project root
 
-
->
+>lua
     use({
         "gnikdroy/projections.nvim",
         config = function()
@@ -147,26 +138,23 @@ The recommended setup does the following:
     })
 <
 
-
 Additionally you will likely want to enable `localoptions`:
 
->
+>lua
     vim.opt.sessionoptions:append("localoptions")       -- Save localoptions to session file
 <
 
 
 RECIPES ~
 
-                              *projections-Automatically-restore-last-session*
 
-Automatically restore last session     The following lines setup an autocmd to
-                                       automatically restore last session. If
-                                       you are using the recommended
-                                       configuration, make sure to remove the
-                                       `VimEnter` autocmd
+AUTOMATICALLY RESTORE LAST SESSION
 
+The following lines setup an autocmd to automatically restore last session. If
+you are using the recommended configuration, make sure to remove the `VimEnter`
+autocmd
 
->
+>lua
     -- If vim was started with arguments, do nothing
     -- If in some project's root, attempt to restore that project's session
     -- If not, restore last session
@@ -187,16 +175,13 @@ Automatically restore last session     The following lines setup an autocmd to
 <
 
 
-                                         *projections-Manual-Session-commands*
+MANUAL SESSION COMMANDS
 
-Manual Session commands                The following lines register two
-                                       commands `StoreProjectSession` and
-                                       `RestoreProjectSession`. Both of them
-                                       attempt to store/restore the session if
-                                       `cwd` is a project directory.
+The following lines register two commands `StoreProjectSession` and
+`RestoreProjectSession`. Both of them attempt to store/restore the session if
+`cwd` is a project directory.
 
-
->
+>lua
     local Session = require("projections.session")
     vim.api.nvim_create_user_command("StoreProjectSession", function()
         Session.store(vim.loop.cwd())
@@ -208,15 +193,12 @@ Manual Session commands                The following lines register two
 <
 
 
-                                     *projections-Create-AddWorkspace-command*
+CREATE ADDWORKSPACE COMMAND
 
-Create AddWorkspace command            The following example creates a
-                                       `AddWorkspace` user command which adds
-                                       the current directory to workspaces json
-                                       file. Default set of `patterns` is used.
+The following example creates a `AddWorkspace` user command which adds the
+current directory to workspaces json file. Default set of `patterns` is used.
 
-
->
+>lua
     local Workspace = require("projections.workspace")
     -- Add workspace command
     vim.api.nvim_create_user_command("AddWorkspace", function() 
@@ -224,10 +206,9 @@ Create AddWorkspace command            The following example creates a
     end, {})
 <
 
-
 The json file format is as follows:
 
->
+>json
     [
         {
             "path": "/path/to/workspace",
@@ -247,17 +228,15 @@ INTENDED USAGE ~
   You are responsible for creating a clear folder structure for your projects!
   While this plugin doesn’t force any particularly outrageous folder structure,
   it won’t work well with a particularly outrageous folder structure either!
-
-
 `projections` stores information in the following places by default:
 
->
+>lua
     workspaces = stdpath('data') .. 'projections_workspaces.json'
     sessions   = stdpath('cache') .. 'projections_sessions/'
 <
 
 
-🔭 ABOUT TELESCOPE                        *projections-🔭-about-telescope*
+🔭 ABOUT TELESCOPE  *projections-🛸-projections.nvim-🔭-about-telescope*
 
 **The telescope plugin is intended to be the primary method to switch between
 projects!** So expect the usability of this plugin to be greatly compromised if
@@ -267,19 +246,22 @@ you don’t use telescope.nvim
 That being said, you can create your own project switcher with the exposed
 functions.
 
+
 🔍 USE FZF? ~
 
 Take a look at the unofficial extension by nyngwang: fzf-lua-projections
 <https://github.com/nyngwang/fzf-lua-projections.nvim>
 
-💻 API                                                *projections-💻-api*
+
+💻 API                          *projections-🛸-projections.nvim-💻-api*
 
 The source files are documented for now. But this section will be completed in
 due time. The API is not stable. You might need to spend a couple of minutes
 every once in a while to update! That being said, most of the core stuff
 shouldn’t change.
 
-📦 INTERACTION WITH PLUGINS      *projections-📦-interaction-with-plugins*
+
+📦 INTERACTION WITH PLUGINS*projections-🛸-projections.nvim-📦-interaction-with-plugins*
 
 Neovim’s sessions do not work well with some plugins. For example, if you try
 `:mksession` with an open `nvim-tree` window, it will store instructions for an
@@ -289,15 +271,12 @@ There are several other plugins that do not work well. There are several
 methods to deal with this including:
 
 
-1. Close all such buffers before saving the session. `see pre store hooks`
-2. Store all such buffers, and then restore them accordingly. `see post restore hooks`
-3. Do nothing and handle the buffers manually, either at store or restore.
-
+1. Close all such buffers before saving the session. `see pre store hooks`2. Store all such buffers, and then restore them accordingly. `see post restore hooks`3. Do nothing and handle the buffers manually, either at store or restore.
 
 For example, let’s see how you can close `nvim-tree`, or `neo-tree` before
 storing sessions:
 
->
+>lua
     require("projections").setup({
         store_hooks = {
             pre = function()
@@ -312,21 +291,18 @@ storing sessions:
     })
 <
 
-
-**Will such a functionality be present in `projections`?** Hard to say. This is
+**Will such a functionality be present in projections?** Hard to say. This is
 not an easy problem to solve reliably. Option 2 sounds reasonable, but everyone
 has different needs. And since the user knows better than `projections`, I am
 inclined to push this responsibility to the user as well. If enough people ask
 for this, I may provide support for common plugins via something like
 `projections.unstable`
 
-❓ FURTHER QUERIES                          *projections-❓-further-queries*
+
+❓ FURTHER QUERIES    *projections-🛸-projections.nvim-❓-further-queries*
 
 
-1. Make sure you have read `:h session`, `:h mksession`, and `:h sessionoptions`
-2. Check out the wiki <https://github.com/GnikDroy/projections.nvim/wiki>, the FAQ, and this document.
-3. Search active and closed issues <https://github.com/GnikDroy/projections.nvim/issues?q=is%3Aissue>
-
+1. Make sure you have read `:h session`, `:h mksession`, and `:h sessionoptions`2. Check out the wiki <https://github.com/GnikDroy/projections.nvim/wiki>, the FAQ, and this document.3. Search active and closed issues <https://github.com/GnikDroy/projections.nvim/issues?q=is%3Aissue>
 
 If you still can’t solve your problem, feel free to file an issue.
 
