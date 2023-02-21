@@ -20,6 +20,7 @@ end
 ---@return Path
 ---@nodiscard
 function Project:path()
+    if not self.workspace or not self.name then return Path.new("") end
     return self.workspace.path .. self.name
 end
 

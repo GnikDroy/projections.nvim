@@ -114,7 +114,7 @@ use({
         local switcher = require("projections.switcher")
         vim.api.nvim_create_autocmd({ "VimEnter" }, {
             callback = function()
-                if vim.fn.argc() == 0 then switcher.switch(vim.loop.cwd()) end
+                if vim.fn.argc() == 0 then switcher:switch(vim.loop.cwd()) end
             end,
         })
     end
@@ -140,13 +140,14 @@ If you are using the recommended configuration, make sure to remove the
 -- If in some project's root, attempt to restore that project's session
 -- If not, restore last session
 -- If no sessions, do nothing
+local Switcher = require("projections.switcher")
 local Session = require("projections.session")
 vim.api.nvim_create_autocmd({ "VimEnter" }, {
     callback = function()
         if vim.fn.argc() ~= 0 then return end
         local session_info = Session.info(vim.loop.cwd())
         if session_info == nil then
-            Session.restore_latest()
+            Switcher.last()
         else
             Session.restore(vim.loop.cwd())
         end
