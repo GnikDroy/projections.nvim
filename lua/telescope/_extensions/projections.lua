@@ -5,6 +5,7 @@ local finders = require("telescope.finders")
 local actions = require("telescope.actions")
 local action_state = require("telescope.actions.state")
 local conf = require("telescope.config").values
+local utils = require("projections.utils")
 
 local function project_finder(opts)
     local workspaces = require("projections.workspace").get_workspaces()
@@ -14,6 +15,13 @@ local function project_finder(opts)
             table.insert(projects, project)
         end
     end
+
+    local manual_projects = require("projections.project").get_projects()
+    for _, project in ipairs(manual_projects) do
+        table.insert(projects, project)
+    end
+
+    projects = utils._unique_projects(projects)
 
     return finders.new_table({
         results = projects,

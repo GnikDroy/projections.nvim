@@ -19,6 +19,16 @@ function Session.info(spath)
     local path = Path.new(spath)
     local project_name = path:basename()
     local workspace_path = path:parent()
+
+    -- allow skipping checks whether the provided path is a workspace or a project
+    if config.skip_session_check then
+        local filename = Session.session_filename(tostring(workspace_path), project_name)
+        return {
+            path = config.sessions_directory .. filename,
+            project = Project.new(project_name, Workspace.new(workspace_path, {}))
+        }
+    end
+
     local all_workspaces = Workspace.get_workspaces()
     local workspace = nil
     for _, ws in ipairs(all_workspaces) do
@@ -27,13 +37,31 @@ function Session.info(spath)
             break
         end
     end
-    if workspace == nil or not workspace:is_project(project_name) then return nil end
 
-    local filename = Session.session_filename(tostring(workspace_path), project_name)
-    return {
-        path = config.sessions_directory .. filename,
-        project = Project.new(project_name, workspace)
-    }
+    -- check if the path is part of a workspace
+    local is_workspace = workspace ~= nil and workspace:is_project(project_name)
+    if is_workspace then
+        local filename = Session.session_filename(tostring(workspace_path), project_name)
+        return {
+            path = config.sessions_directory .. filename,
+            project = Project.new(project_name, workspace)
+        }
+    -- check if the path was manually added as a project
+    else
+        local projects = Project.get_projects()
+        for _, proj in ipairs(projects) do
+            -- check if the path of this project is the path of some workspace
+            if path:parent() == proj.workspace.path and project_name == proj.name then
+                local filename = Session.session_filename(tostring(proj.workspace.path), proj.name)
+                return {
+                    path = config.sessions_directory .. filename,
+                    project = proj
+                }
+            end
+        end
+    end
+
+    return nil
 end
 
 -- Returns the session filename for project
@@ -66,10 +94,10 @@ end
 ---@param spath string Path to the session file
 ---@returns boolean
 function Session.store_to_session_file(spath)
-    if config.store_hooks.pre ~= nil then config.store_hooks.pre() end
+    if config.store_hooks.pre ~= nil then config.store_hooks.pre(spath) end
     -- TODO: correctly indicate errors here!
     vim.cmd("mksession! " .. spath)
-    if config.store_hooks.post ~= nil then config.store_hooks.post() end
+    if config.store_hooks.post ~= nil then config.store_hooks.post(spath) end
     return true
 end
 
@@ -87,10 +115,10 @@ end
 ---@param spath string Path to session file
 ---@return boolean
 function Session.restore_from_session_file(spath)
-    if config.restore_hooks.pre ~= nil then config.restore_hooks.pre() end
+    if config.restore_hooks.pre ~= nil then config.restore_hooks.pre(spath) end
     -- TODO: correctly indicate errors here!
     vim.cmd("silent! source " .. spath)
-    if config.restore_hooks.post ~= nil then config.restore_hooks.post() end
+    if config.restore_hooks.post ~= nil then config.restore_hooks.post(spath) end
     return true
 end
 
