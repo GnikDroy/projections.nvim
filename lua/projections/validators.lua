@@ -48,6 +48,17 @@ M.validate_workspaces_json = function(workspaces)
     end
 end
 
+-- Validate projects table from JSON. Throws error on failure.
+---@param projects table Sequential table of projects
+M.validate_projects_json = function(projects)
+    M.assert_type({ "table" }, projects, "projects")
+    for project_index, proj in ipairs(projects) do
+        M.assert_type({ "table" },  proj, "projects[%d]", project_index)
+        M.assert_type({ "string" }, proj.name, "projects[%d].name", project_index)
+        M.assert_type({ "string" }, proj.workspace, "projects[%d].workspace", project_index)
+    end
+end
+
 -- Validate projections config passed to setup. Throws error on failure.
 ---@param config ConfigUser Config passed to projections by user
 M.validate_user_config = function(config)

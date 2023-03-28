@@ -12,7 +12,9 @@ local M = {}
 ---@field workspaces table|nil
 ---@field patterns Patterns|nil
 ---@field workspaces_file string|nil
+---@field projects_file string|nil
 ---@field sessions_directory string|nil
+---@field skip_session_check boolean
 
 -- Setup projections
 ---@param conf ConfigUser

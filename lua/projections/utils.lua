@@ -44,4 +44,21 @@ M._unique_workspaces = function(workspaces)
     return result
 end
 
+-- Returns unique projects in list
+---@param projects Project[] List of projects
+---@return Project[]
+---@nodiscard
+M._unique_projects = function(projects)
+    local hashmap = {}
+    local result = {}
+    for _, p in ipairs(projects) do
+        local hash = tostring(p:path())
+        if not hashmap[hash] then
+            result[#result + 1] = p
+            hashmap[hash] = true
+        end
+    end
+    return result
+end
+
 return M
