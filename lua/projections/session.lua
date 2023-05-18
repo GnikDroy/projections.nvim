@@ -68,7 +68,7 @@ end
 function Session.store_to_session_file(spath)
     if config.store_hooks.pre ~= nil then config.store_hooks.pre() end
     -- TODO: correctly indicate errors here!
-    vim.cmd("mksession! " .. spath)
+    vim.cmd("mksession! " .. vim.fn.fnameescape(spath))
     if config.store_hooks.post ~= nil then config.store_hooks.post() end
     return true
 end
@@ -89,7 +89,7 @@ end
 function Session.restore_from_session_file(spath)
     if config.restore_hooks.pre ~= nil then config.restore_hooks.pre() end
     -- TODO: correctly indicate errors here!
-    vim.cmd("silent! source " .. spath)
+    vim.cmd("silent! source " .. vim.fn.fnameescape(spath))
     if config.restore_hooks.post ~= nil then config.restore_hooks.post() end
     return true
 end

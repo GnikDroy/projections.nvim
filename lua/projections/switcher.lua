@@ -16,7 +16,7 @@ M.switch = function(spath)
     if session_info == nil then return false end
 
     if vim.loop.cwd() ~= spath then Session.store(vim.loop.cwd()) end
-    vim.cmd("noautocmd cd " .. spath)
+    vim.cmd("noautocmd cd " .. vim.fn.fnameescape(spath))
     vim.cmd [[
         silent! %bdelete
         clearjumps
