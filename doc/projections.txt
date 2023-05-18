@@ -106,7 +106,6 @@ RECOMMENDED CONFIGURATION ~
 
 The recommended setup does the following:
 
-
 - Provides a telescope switcher for projects, which can be launched by `<leader>fp`
 - Saves project’s session automatically on `VimExit`
 - Switch to project if nvim was started from a project root
@@ -270,8 +269,9 @@ empty buffer in the sessions file.
 There are several other plugins that do not work well. There are several
 methods to deal with this including:
 
-
-1. Close all such buffers before saving the session. `see pre store hooks`2. Store all such buffers, and then restore them accordingly. `see post restore hooks`3. Do nothing and handle the buffers manually, either at store or restore.
+1. Close all such buffers before saving the session. `see pre store hooks`
+2. Store all such buffers, and then restore them accordingly. `see post restore hooks`
+3. Do nothing and handle the buffers manually, either at store or restore.
 
 For example, let’s see how you can close `nvim-tree`, or `neo-tree` before
 storing sessions:
@@ -301,8 +301,9 @@ for this, I may provide support for common plugins via something like
 
 ❓ FURTHER QUERIES    *projections-🛸-projections.nvim-❓-further-queries*
 
-
-1. Make sure you have read `:h session`, `:h mksession`, and `:h sessionoptions`2. Check out the wiki <https://github.com/GnikDroy/projections.nvim/wiki>, the FAQ, and this document.3. Search active and closed issues <https://github.com/GnikDroy/projections.nvim/issues?q=is%3Aissue>
+1. Make sure you have read `:h session`, `:h mksession`, and `:h sessionoptions`
+2. Check out the wiki <https://github.com/GnikDroy/projections.nvim/wiki>, the FAQ, and this document.
+3. Search active and closed issues <https://github.com/GnikDroy/projections.nvim/issues?q=is%3Aissue>
 
 If you still can’t solve your problem, feel free to file an issue.
 
