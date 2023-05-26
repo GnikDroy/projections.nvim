@@ -130,8 +130,16 @@ function Workspace.get_workspaces_from_config()
     for _, ws in ipairs(config.workspaces) do
         -- has been configured for { path, patterns }
         if type(ws) == "table" then
-            local path, patterns = unpack(ws)
-            table.insert(workspaces, Workspace.new(Path.new(path), patterns))
+            local path, patterns , childs = unpack(ws)
+
+            if childs == nil then
+                table.insert(workspaces, Workspace.new(Path.new(path), patterns))
+            else
+                for inner_path in ipairs(vim.fs.dir(path)) do
+                    table.insert(workspaces, Workspace.new(Path.new(inner_path), patterns))
+                end
+            end
+
         end
         -- has been configured for "path"
         if type(ws) == "string" then
