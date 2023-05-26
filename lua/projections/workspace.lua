@@ -135,8 +135,8 @@ function Workspace.get_workspaces_from_config()
             if childs == nil then
                 table.insert(workspaces, Workspace.new(Path.new(path), patterns))
             else
-                for inner_path in ipairs(vim.fs.dir(path)) do
-                    table.insert(workspaces, Workspace.new(Path.new(inner_path), patterns))
+                for inner_path in vim.fs.dir(path) do
+                    table.insert(workspaces, Workspace.new(Path.new(path .. "/" .. inner_path), patterns))
                 end
             end
 
