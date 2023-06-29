@@ -1,4 +1,4 @@
-local config = require("projections.config").config
+local Config = require("projections.config")
 local utils = require("projections.utils")
 local Project = require("projections.project")
 local validators = require("projections.validators")
@@ -30,21 +30,10 @@ function Workspace.new(path, patterns)
     return workspace
 end
 
----@alias WorkspaceJSON { path: string, patterns: nil|string[] }
-
--- Deserialize workspace from table
----@param tbl WorkspaceJSON string or table of values
----@return Workspace
----@nodiscard
-function Workspace.deserialize(tbl)
-    validators.assert_type({ "table" }, tbl, "Please consult README/wiki for a spec for the format. workspaces -")
-    return Workspace.new(Path.new(tbl.path), tbl.patterns)
-end
-
 -- Ensures that persistent workspaces file is present
 ---@return boolean
 function Workspace._ensure_persistent_file()
-    local file = io.open(tostring(config.workspaces_file), "a")
+    local file = io.open(tostring(Config.config.workspaces_file), "a")
     if file == nil then
         vim.notify("projections: cannot access workspace file", vim.log.levels.ERROR)
         return false
@@ -72,17 +61,12 @@ end
 ---@nodiscard
 function Workspace:directories()
     local dirs = {}
-
-    -- Check if we can iterate over the directories
-    local dir = vim.loop.fs_scandir(tostring(self.path))
-    if dir == nil then return dirs end
-
-    -- iterate over workspace and return all directories
-    while true do
-        local file, type = vim.loop.fs_scandir_next(dir)
-        if file == nil then return dirs end
-        if type == "directory" then table.insert(dirs, file) end
+    for name, type in vim.fs.dir(tostring(self.path)) do
+        if type == "directory" then
+            table.insert(dirs, name)
+        end
     end
+    return dirs
 end
 
 -- Checks if given is a project directory in workspace
@@ -107,15 +91,15 @@ end
 ---@nodiscard
 function Workspace.get_workspaces_from_file()
     local workspaces = {}
-    if vim.fn.filereadable(tostring(config.workspaces_file)) == 1 then
-        local lines = vim.fn.readfile(tostring(config.workspaces_file))
+    if vim.fn.filereadable(tostring(Config.config.workspaces_file)) == 1 then
+        local lines = vim.fn.readfile(tostring(Config.config.workspaces_file))
         if next(lines) == nil then return {} end
 
-        local workspaces_json = vim.fn.json_decode(lines)
-        validators.validate_workspaces_json(workspaces_json)
+        local workspaces_json = vim.fn.json_decode(lines) --[[@as any]]
+        validators.validate_workspaces_table(workspaces_json)
 
         for _, ws in ipairs(workspaces_json) do
-            table.insert(workspaces, Workspace.deserialize(ws))
+            table.insert(workspaces, Workspace.new(Path.new(ws.path), ws.patterns))
         end
     end
     workspaces = utils._unique_workspaces(workspaces)
@@ -127,16 +111,8 @@ end
 ---@nodiscard
 function Workspace.get_workspaces_from_config()
     local workspaces = {}
-    for _, ws in ipairs(config.workspaces) do
-        -- has been configured for { path, patterns }
-        if type(ws) == "table" then
-            local path, patterns = unpack(ws)
-            table.insert(workspaces, Workspace.new(Path.new(path), patterns))
-        end
-        -- has been configured for "path"
-        if type(ws) == "string" then
-            table.insert(workspaces, Workspace.new(Path.new(ws), config.patterns))
-        end
+    for _, ws in ipairs(Config.config.workspaces) do
+        table.insert(workspaces, Workspace.new(Path.new(ws.path), ws.patterns))
     end
     workspaces = utils._unique_workspaces(workspaces)
     return workspaces
@@ -167,7 +143,7 @@ function Workspace.add(spath, patterns)
     Workspace._ensure_persistent_file()
 
     local workspaces = Workspace.get_workspaces_from_file()
-    table.insert(workspaces, Workspace.new(path, patterns or config.patterns))
+    table.insert(workspaces, Workspace.new(path, patterns))
     workspaces = utils._unique_workspaces(workspaces)
 
     local workspaces_serialized = {}
@@ -175,7 +151,7 @@ function Workspace.add(spath, patterns)
         table.insert(workspaces_serialized, { path = tostring(ws.path), patterns = ws.patterns })
     end
 
-    local file = io.open(tostring(config.workspaces_file), "w")
+    local file = io.open(tostring(Config.config.workspaces_file), "w")
     if file == nil then
         vim.notify("projections: cannot open workspace file", vim.log.levels.ERROR)
         return false

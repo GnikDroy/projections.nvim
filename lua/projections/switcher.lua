@@ -15,7 +15,7 @@ M.switch = function(spath)
     local session_info = Session.info(spath)
     if session_info == nil then return false end
 
-    if vim.loop.cwd() ~= spath then Session.store(vim.loop.cwd()) end
+    if vim.fn.getcwd() ~= spath then Session.store(vim.fn.getcwd()) end
     vim.cmd("noautocmd cd " .. vim.fn.fnameescape(spath))
     vim.cmd [[
         silent! %bdelete

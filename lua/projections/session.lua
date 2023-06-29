@@ -1,5 +1,5 @@
 local utils = require("projections.utils")
-local config = require("projections.config").config
+local Config = require("projections.config")
 local Workspace = require("projections.workspace")
 local Project = require("projections.project")
 
@@ -31,7 +31,7 @@ function Session.info(spath)
 
     local filename = Session.session_filename(tostring(workspace_path), project_name)
     return {
-        path = config.sessions_directory .. filename,
+        path = Config.config.sessions_directory .. filename,
         project = Project.new(project_name, workspace)
     }
 end
@@ -49,7 +49,7 @@ end
 -- Ensures sessions directory is available
 ---@return boolean
 function Session._ensure_sessions_directory()
-    return vim.fn.mkdir(tostring(config.sessions_directory), "p") == 1
+    return vim.fn.mkdir(tostring(Config.config.sessions_directory), "p") == 1
 end
 
 -- Attempts to store the session
@@ -66,10 +66,10 @@ end
 ---@param spath string Path to the session file
 ---@returns boolean
 function Session.store_to_session_file(spath)
-    if config.store_hooks.pre ~= nil then config.store_hooks.pre() end
+    if Config.config.store_hooks.pre ~= nil then Config.config.store_hooks.pre() end
     -- TODO: correctly indicate errors here!
     vim.cmd("mksession! " .. vim.fn.fnameescape(spath))
-    if config.store_hooks.post ~= nil then config.store_hooks.post() end
+    if Config.config.store_hooks.post ~= nil then Config.config.store_hooks.post() end
     return true
 end
 
@@ -87,10 +87,10 @@ end
 ---@param spath string Path to session file
 ---@return boolean
 function Session.restore_from_session_file(spath)
-    if config.restore_hooks.pre ~= nil then config.restore_hooks.pre() end
+    if Config.config.restore_hooks.pre ~= nil then Config.config.restore_hooks.pre() end
     -- TODO: correctly indicate errors here!
     vim.cmd("silent! source " .. vim.fn.fnameescape(spath))
-    if config.restore_hooks.post ~= nil then config.restore_hooks.post() end
+    if Config.config.restore_hooks.post ~= nil then Config.config.restore_hooks.post() end
     return true
 end
 
@@ -101,8 +101,8 @@ function Session.latest()
     local latest_session = nil
     local latest_timestamp = 0
 
-    for _, filename in ipairs(vim.fn.readdir(tostring(config.sessions_directory))) do
-        local session = config.sessions_directory .. filename
+    for _, filename in ipairs(vim.fn.readdir(tostring(Config.config.sessions_directory))) do
+        local session = Config.config.sessions_directory .. filename
         local timestamp = vim.fn.getftime(tostring(session))
         if timestamp > latest_timestamp then
             latest_session = session
