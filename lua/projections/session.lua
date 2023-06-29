@@ -12,7 +12,7 @@ Session.__index = Session
 -- Returns the path of the session file as well as project information
 -- Returns nil if path is not a valid project path
 ---@param spath string The path to project root
----@return nil | SessionInfo
+---@return SessionInfo?
 ---@nodiscard
 function Session.info(spath)
     -- check if path is some project's root
@@ -95,7 +95,7 @@ function Session.restore_from_session_file(spath)
 end
 
 -- Get latest session
----@return nil | Path
+---@return Path?
 ---@nodiscard
 function Session.latest()
     local latest_session = nil

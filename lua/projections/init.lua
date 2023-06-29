@@ -5,7 +5,7 @@ local Session = require("projections.session")
 
 local M = {}
 
----@alias Hook function|nil
+---@alias Hook function?
 ---@alias HookGroup { pre: Hook, post: Hook }
 
 ---@alias WorkspaceUser { path: string, patterns: nil|string[] }

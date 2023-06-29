@@ -26,21 +26,39 @@ local function make_project_sorter()
     return sorter
 end
 
-local function make_project_previewer()
-    local command = { "ls", "-lhA", "--color=auto" }
-    if vim.fn.executable('lsd') == 1 then
-        command = { "lsd", "-lhA" }
-    elseif vim.fn.executable('exa') == 1 then
-        command = { "exa", "-lha" }
-    end
-
+local function make_project_previewer_unix()
     return previewers.new_termopen_previewer({
         get_command = function(entry, _)
-            table.insert(command, entry.value)
+            local command = { "ls", "-lhA", "--color=auto" }
+            if vim.fn.executable('lsd') == 1 then
+                command = { "lsd", "-lhA" }
+            elseif vim.fn.executable('exa') == 1 then
+                command = { "exa", "-lha" }
+            end
+            table.insert(command, vim.fn.fnameescape(entry.value))
             return command
         end
     })
 end
+
+local function make_project_previewer_windows()
+    return previewers.new_termopen_previewer({
+        get_command = function(entry, _)
+            local command = { "powershell.exe", "-Command", }
+            table.insert(command, string.format('ls "%s"', entry.value))
+            return command
+        end
+    })
+end
+
+local function make_project_previewer()
+    if vim.fn.has('win32') == 1 then
+        return make_project_previewer_windows()
+    else
+        return make_project_previewer_unix()
+    end
+end
+
 
 local function project_finder(opts)
     local workspaces = require("projections.workspace").get_workspaces()
