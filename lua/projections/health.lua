@@ -6,7 +6,7 @@ function M.check()
     if telescope_present then
         vim.health.ok("Found telescope")
     else
-        vim.health.warn("Telescope is not found. Projections will use the quickfix list.")
+        vim.health.warn("Telescope not found.")
     end
 end
 

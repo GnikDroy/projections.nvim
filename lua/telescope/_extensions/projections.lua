@@ -7,7 +7,7 @@ local action_state = require("telescope.actions.state")
 local conf = require("telescope.config").values
 local previewers = require('telescope.previewers')
 
-local function make_project_sorter()
+local function make_project_sorter(opts)
     -- Sort by recent implemented by
     -- hooking into the default scoring function, of generic_sorter
     -- we check if prompt is empty, if so, score by file modification time (inverted)
@@ -26,7 +26,7 @@ local function make_project_sorter()
     return sorter
 end
 
-local function make_project_previewer_unix()
+local function make_project_previewer_unix(_)
     return previewers.new_termopen_previewer({
         get_command = function(entry, _)
             local command = { "ls", "-lhA", "--color=auto" }
@@ -41,7 +41,7 @@ local function make_project_previewer_unix()
     })
 end
 
-local function make_project_previewer_windows()
+local function make_project_previewer_windows(_)
     return previewers.new_termopen_previewer({
         get_command = function(entry, _)
             local command = { "powershell.exe", "-Command", }
@@ -51,11 +51,11 @@ local function make_project_previewer_windows()
     })
 end
 
-local function make_project_previewer()
+local function make_project_previewer(opts)
     if vim.fn.has('win32') == 1 then
-        return make_project_previewer_windows()
+        return make_project_previewer_windows(opts)
     else
-        return make_project_previewer_unix()
+        return make_project_previewer_unix(opts)
     end
 end
 
@@ -90,8 +90,8 @@ end
 
 local find_projects = function(opts)
     opts = opts or {}
-    opts.sorter = opts.sorter or make_project_sorter()
-    opts.previewer = opts.previewer or make_project_previewer()
+    opts.sorter = opts.sorter or make_project_sorter(opts)
+    opts.previewer = opts.previewer or make_project_previewer(opts)
 
     local switcher = require("projections.switcher")
     pickers.new(opts, {

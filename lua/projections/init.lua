@@ -2,6 +2,7 @@ local Config = require("projections.config")
 local Workspace = require("projections.workspace")
 local validators = require("projections.validators")
 local Session = require("projections.session")
+local Switcher = require("projections.switcher")
 
 local M = {}
 
@@ -20,13 +21,32 @@ local M = {}
 ---@field selector_mapping string?
 ---@field auto_restore boolean?
 
+-- Launch the projections project switcher using vim.ui.select
+function M.launch_native_ui()
+    local workspaces = Workspace.get_workspaces()
+    local projects = {}
+    for _, ws in ipairs(workspaces) do
+        for _, project in ipairs(ws:projects()) do
+            table.insert(projects, project)
+        end
+    end
+
+    vim.ui.select(projects, {
+        format_item = function(project) return project.name end,
+    }, function(sel)
+        if sel ~= nil then
+            Switcher.switch(tostring(sel:path()))
+        end
+    end)
+end
+
 -- Launch the projections project switcher
 function M.launch()
     local telescope_present, telescope = pcall(require, "telescope")
     if telescope_present then
         telescope.extensions.projections.projections()
     else
-        vim.notify("projections: quickfix implementation is not ready")
+        M.launch_native_ui()
     end
 end
 
