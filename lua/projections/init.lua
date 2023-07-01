@@ -8,33 +8,34 @@ local M = {}
 ---@alias Hook function?
 ---@alias HookGroup { pre: Hook, post: Hook }
 
----@alias WorkspaceUser { path: string, patterns: nil|string[] }
+---@alias WorkspaceUser { path: string, patterns: string[]? }
 
 ---@class ConfigUser
 ---@field store_hooks HookGroup?
 ---@field restore_hooks HookGroup?
----@field workspaces nil|WorkspaceUser[]
+---@field workspaces WorkspaceUser[]?
 ---@field default_patterns Patterns?
 ---@field workspaces_file string?
 ---@field sessions_directory string?
 ---@field selector_mapping string?
 ---@field auto_restore boolean?
 
--- Setup projections (global side-effects)
+-- Launch the projections project switcher
+function M.launch()
+    local telescope_present, telescope = pcall(require, "telescope")
+    if telescope_present then
+        telescope.extensions.projections.projections()
+    else
+        vim.notify("projections: quickfix implementation is not ready")
+    end
+end
+
+-- Setup projections (with side-effects)
 ---@param conf Config
 ---@return Config
 local function _setup(conf)
-    local telescope_present, telescope = pcall(require, "telescope")
-    if telescope_present then telescope.load_extension('projections') end
-
     if conf.selector_mapping ~= nil then
-        if telescope_present then
-            vim.keymap.set("n",
-                "<leader>fp",
-                ":Telescope projections<cr>",
-                { desc = "projections: find projects" }
-            )
-        end
+        vim.keymap.set("n", conf.selector_mapping, M.launch, { desc = "projections: find projects" })
     end
 
     vim.api.nvim_create_augroup("projections.nvim", {})
