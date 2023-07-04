@@ -12,14 +12,14 @@ local function make_project_sorter(opts)
     -- hooking into the default scoring function, of generic_sorter
     -- we check if prompt is empty, if so, score by file modification time (inverted)
     -- if prompt is not empty, use the default scoring function
-    local config = require("projections.config").config
+    local Config = require("projections.config")
     local Session = require("projections.session")
     local sorter = conf.generic_sorter(opts)
     local default_scoring_function = sorter.scoring_function
     sorter.scoring_function = function(_sorter, prompt, line, ...)
         if prompt == '' then
             local session_filename = Session.session_filename(vim.fn.fnamemodify(line, ":h"), vim.fs.basename(line))
-            return 1 / math.abs(vim.fn.getftime(tostring(config.sessions_directory .. session_filename)))
+            return 1 / math.abs(vim.fn.getftime(tostring(Config.config.sessions_directory .. session_filename)))
         end
         return default_scoring_function(_sorter, prompt, line, ...)
     end
@@ -91,7 +91,8 @@ end
 local find_projects = function(opts)
     opts = opts or {}
     opts.sorter = opts.sorter or make_project_sorter(opts)
-    opts.previewer = opts.previewer or make_project_previewer(opts)
+    local default_previewer = opts.preview and make_project_previewer(opts) or nil
+    opts.previewer = opts.previewer and opts.previewer or default_previewer
 
     local switcher = require("projections.switcher")
     pickers.new(opts, {

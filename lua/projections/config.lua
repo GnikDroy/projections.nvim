@@ -9,6 +9,7 @@ local Path = require("projections.path")
 ---@field sessions_directory Path
 ---@field selector_mapping string?
 ---@field auto_restore boolean
+---@field show_preview boolean
 local Config = {}
 Config.__index = Config
 
@@ -26,7 +27,8 @@ function Config.new()
     config.workspaces_file = Path.new(data_path) .. "projections_workspaces.json"
     config.sessions_directory = Path.new(cache_path) .. "projections_sessions"
     config.selector_mapping = "<leader>fp"
-    config.auto_restore = true
+    config.auto_restore = false
+    config.show_preview = false
     return config
 end
 

@@ -85,8 +85,11 @@ and Mercurial repositories under workspace `W` are considered projects.
     -- The keymapping to use to launch the picker, string?
     selector_mapping = "<leader>fp",
 
-    -- If projections will try to auto restore sessions when you open neovim, boolean
-    auto_restore = true,
+    -- Whether to show preview window via telescope, boolean
+    show_preview = false,
+
+    -- If projections will try to auto restore sessions when you start neovim, boolean
+    auto_restore = false,
     -- The behaviour is as follows:
     -- 1) If vim was started with arguments, do nothing
     -- 2) If in some project's root, attempt to restore that project's session

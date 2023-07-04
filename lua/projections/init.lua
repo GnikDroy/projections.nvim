@@ -20,6 +20,7 @@ local M = {}
 ---@field sessions_directory string?
 ---@field selector_mapping string?
 ---@field auto_restore boolean?
+---@field show_preview boolean?
 
 -- Launch the projections project switcher using vim.ui.select
 function M.launch_native_ui()
@@ -42,9 +43,10 @@ end
 
 -- Launch the projections project switcher
 function M.launch()
+    local config = Config.config
     local telescope_present, telescope = pcall(require, "telescope")
     if telescope_present then
-        telescope.extensions.projections.projections()
+        telescope.extensions.projections.projections({ preview = config.show_preview })
     else
         M.launch_native_ui()
     end
