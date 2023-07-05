@@ -1,11 +1,10 @@
-local utils = require("projections.utils")
-local Config = require("projections.config")
+local utils     = require("projections.utils")
+local Config    = require("projections.config")
 local Workspace = require("projections.workspace")
-local Project = require("projections.project")
+local Project   = require("projections.project")
 
-local Session = {}
+local Session   = {}
 Session.__index = Session
-
 
 ---@alias SessionInfo { path: Path, project: Project }
 
@@ -67,8 +66,8 @@ end
 ---@returns boolean
 function Session.store_to_session_file(spath)
     if Config.config.store_hooks.pre ~= nil then Config.config.store_hooks.pre() end
-    -- TODO: correctly indicate errors here!
-    vim.cmd("mksession! " .. vim.fn.fnameescape(spath))
+    local ret, _ = pcall(vim.cmd.mksession, { vim.fn.fnameescape(spath), bang = true })
+    if not ret then return false end
     if Config.config.store_hooks.post ~= nil then Config.config.store_hooks.post() end
     return true
 end
@@ -88,8 +87,8 @@ end
 ---@return boolean
 function Session.restore_from_session_file(spath)
     if Config.config.restore_hooks.pre ~= nil then Config.config.restore_hooks.pre() end
-    -- TODO: correctly indicate errors here!
-    vim.cmd("silent! source " .. vim.fn.fnameescape(spath))
+    local ret, _ = pcall(vim.cmd.source, vim.fn.fnameescape(spath))
+    if not ret then return false end
     if Config.config.restore_hooks.post ~= nil then Config.config.restore_hooks.post() end
     return true
 end

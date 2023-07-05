@@ -1,10 +1,9 @@
-local Config = require("projections.config")
-local Workspace = require("projections.workspace")
+local M          = {}
+local Config     = require("projections.config")
+local Workspace  = require("projections.workspace")
+local Session    = require("projections.session")
+local Switcher   = require("projections.switcher")
 local validators = require("projections.validators")
-local Session = require("projections.session")
-local Switcher = require("projections.switcher")
-
-local M = {}
 
 ---@alias Hook function?
 ---@alias HookGroup { pre: Hook, post: Hook }
@@ -12,15 +11,15 @@ local M = {}
 ---@alias WorkspaceUser { path: string, patterns: string[]? }
 
 ---@class ConfigUser
----@field store_hooks HookGroup?
----@field restore_hooks HookGroup?
----@field workspaces WorkspaceUser[]?
----@field default_patterns Patterns?
----@field workspaces_file string?
+---@field store_hooks        HookGroup?
+---@field restore_hooks      HookGroup?
+---@field workspaces         WorkspaceUser[]?
+---@field default_patterns   Patterns?
+---@field workspaces_file    string?
 ---@field sessions_directory string?
----@field selector_mapping string?
----@field auto_restore boolean?
----@field show_preview boolean?
+---@field selector_mapping   string?
+---@field auto_restore       boolean?
+---@field show_preview       boolean?
 
 -- Launch the projections project switcher using vim.ui.select
 function M.launch_native_ui()
@@ -80,7 +79,7 @@ local function _setup(conf)
                 if session_info == nil then
                     Session.restore_latest()
                 else
-                    Session.restore(vim.fn.getcwd())
+                    Switcher.switch(vim.fn.getcwd())
                 end
             end,
             desc = "Restore last session automatically"

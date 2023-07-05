@@ -1,28 +1,41 @@
+local M = {}
 local Session = require("projections.session")
 local utils = require("projections.utils")
 
-local M = {}
-
 -- Attempts to switch projects and load the session file.
----@param spath string Path to project root
----@return boolean
-M.switch = function(spath)
+-- The quiet version doesn't make any vim.notify calls
+---@param path string Path to project root
+function M.switch_quiet(path)
     if utils._unsaved_buffers_present() then
-        vim.notify("projections: Unsaved buffers. Unable to switch projects", vim.log.levels.WARN)
-        return false
+        error("projections: Unsaved buffers. Unable to switch projects")
     end
 
-    local session_info = Session.info(spath)
-    if session_info == nil then return false end
+    if Session.info(path) == nil then
+        error(string.format("projections: '%s' is not a valid project path", path))
+    end
 
-    if vim.fn.getcwd() ~= spath then Session.store(vim.fn.getcwd()) end
-    vim.cmd("noautocmd cd " .. vim.fn.fnameescape(spath))
-    vim.cmd [[
-        silent! %bdelete
-        clearjumps
-    ]]
-    Session.restore(spath)
-    return true
+    local cwd = vim.fn.getcwd()
+    if path ~= cwd then
+        Session.store(cwd)
+    end
+
+    vim.cmd("silent! %bdelete")
+
+    local ret = Session.restore(path)
+    if not ret then vim.cmd.cd(path) end
+    return ret
+end
+
+-- Attempts to switch projects and load the session file.
+---@param path string Path to project root
+---@return boolean
+function M.switch(path)
+    local ok, ret = pcall(M.switch_quiet, path)
+    if not ok then
+        local err = ret --[[@as string]]
+        vim.notify(err, vim.log.levels.WARN)
+    end
+    return ok
 end
 
 return M

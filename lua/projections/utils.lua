@@ -32,13 +32,13 @@ end
 ---@return Workspace[]
 ---@nodiscard
 M._unique_workspaces = function(workspaces)
-    local hashmap = {}
+    local hashset = {}
     local result = {}
     for _, ws in ipairs(workspaces) do
         local hash = tostring(ws.path)
-        if not hashmap[hash] then
+        if not hashset[hash] then
             result[#result + 1] = ws
-            hashmap[hash] = true
+            hashset[hash] = true
         end
     end
     return result

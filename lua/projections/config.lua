@@ -1,15 +1,15 @@
 local Path = require("projections.path")
 
 ---@class Config
----@field store_hooks HookGroup
----@field restore_hooks HookGroup
----@field workspaces WorkspaceUser
----@field default_patterns Patterns
----@field workspaces_file Path
+---@field store_hooks        HookGroup
+---@field restore_hooks      HookGroup
+---@field workspaces         WorkspaceUser
+---@field default_patterns   Patterns
+---@field workspaces_file    Path
 ---@field sessions_directory Path
----@field selector_mapping string?
----@field auto_restore boolean
----@field show_preview boolean
+---@field selector_mapping   string?
+---@field auto_restore       boolean
+---@field show_preview       boolean
 local Config = {}
 Config.__index = Config
 

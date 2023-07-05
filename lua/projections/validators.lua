@@ -62,6 +62,7 @@ M.validate_config = function(config)
     M.assert_type({ "table" }, config.restore_hooks, "restore_hooks")
     M.assert_type({ "function", "nil" }, config.restore_hooks.pre, "restore_hooks.pre")
     M.assert_type({ "function", "nil" }, config.restore_hooks.post, "restore_hooks.post")
+
     M.assert_type({ "string", "nil" }, config.selector_mapping, "selector_mapping")
     M.assert_type({ "boolean" }, config.auto_restore, "auto_restore")
     M.assert_type({ "boolean" }, config.show_preview, "show_preview")
