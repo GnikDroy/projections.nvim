@@ -24,7 +24,12 @@ M._fnv1a = function(s)
         hash = bit.bxor(hash, s:byte(i))
         hash = hash * prime
     end
-    return tonumber(hash)
+
+
+    s = s:gsub("/", "__")
+
+    -- return tonumber(hash)
+    return s
 end
 
 -- Returns unique workspaces in list

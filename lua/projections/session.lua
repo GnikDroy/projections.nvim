@@ -71,7 +71,8 @@ end
 ---@nodiscard
 function Session.session_filename(workspace_path, project_name)
     local path_hash = utils._fnv1a(workspace_path)
-    return string.format("%s_%u.vim", project_name, path_hash)
+    --return string.format("%s_%u.vim", project_name, path_hash)
+    return string.format("%s__%s", path_hash, project_name)
 end
 
 -- Ensures sessions directory is available
