@@ -56,14 +56,14 @@ end
 ---@return Config
 local function _setup(conf)
     if conf.selector_mapping ~= nil then
-        vim.keymap.set("n", conf.selector_mapping, M.launch, { desc = "projections: find projects" })
+        vim.keymap.set("n", conf.selector_mapping, M.launch, { desc = "Find projects" })
     end
 
     vim.api.nvim_create_augroup("projections.nvim", {})
-    vim.api.nvim_create_autocmd({ 'VimLeavePre' }, {
+    vim.api.nvim_create_autocmd({ "VimLeavePre" }, {
         group = "projections.nvim",
         desc = "Autostore session on VimLeave",
-        callback = function() Session.store(vim.fn.getcwd()) end,
+        callback = function() Session.store(vim.fs.normalize(vim.fn.getcwd())) end,
     })
 
     if conf.auto_restore then
@@ -75,14 +75,14 @@ local function _setup(conf)
             group = "projections.nvim",
             callback = function()
                 if vim.fn.argc() ~= 0 then return end
-                local session_info = Session.info(vim.fn.getcwd())
+                local session_info = Session.info(vim.fs.normalize(vim.fn.getcwd()))
                 if session_info == nil then
                     Session.restore_latest()
                 else
-                    Switcher.switch(vim.fn.getcwd())
+                    Switcher.switch(vim.fs.normalize(vim.fn.getcwd()))
                 end
             end,
-            desc = "Restore last session automatically"
+            desc = "Restore last session automatically",
         })
     end
 
@@ -90,7 +90,7 @@ local function _setup(conf)
     vim.api.nvim_create_user_command("ProjectionsAddWorkspace", function(opts)
         local nargs = #opts.fargs
         if nargs == 0 then
-            Workspace.add(vim.fn.getcwd(), Config.config.default_patterns)
+            Workspace.add(vim.fs.normalize(vim.fn.getcwd()), Config.config.default_patterns)
         elseif nargs == 1 then
             Workspace.add(opts.args, Config.config.default_patterns)
         else

@@ -14,7 +14,7 @@ function M.switch_quiet(path)
         error(string.format("projections: '%s' is not a valid project path", path))
     end
 
-    local cwd = vim.fn.getcwd()
+    local cwd = vim.fs.normalize(vim.fn.getcwd())
     if path ~= cwd then
         Session.store(cwd)
     end
