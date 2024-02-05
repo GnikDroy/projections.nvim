@@ -5,14 +5,9 @@ local Session    = require("projections.session")
 local Switcher   = require("projections.switcher")
 local validators = require("projections.validators")
 
----@alias Hook function?
----@alias HookGroup { pre: Hook, post: Hook }
-
 ---@alias WorkspaceUser { path: string, patterns: string[]? }
 
 ---@class ConfigUser
----@field store_hooks        HookGroup?
----@field restore_hooks      HookGroup?
 ---@field workspaces         WorkspaceUser[]?
 ---@field default_patterns   Patterns?
 ---@field workspaces_file    string?

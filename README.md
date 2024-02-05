@@ -95,12 +95,6 @@ and Mercurial repositories under workspace `W` are considered projects.
     -- 2) If in some project's root, attempt to restore that project's session
     -- 3) If not, restore last stored session
 
-    -- Hooks when storing session, function?
-    store_hooks = { pre = nil, post = nil },
-
-    -- Hooks when restoring session, function?
-    restore_hooks = { pre = nil, post = nil },
-
     -- Path to workspaces json file, string?
     workspaces_file = stdpath("data") .. "projections_workspaces.json",
 
@@ -136,32 +130,50 @@ If you have something like [neodev](https://github.com/folke/neodev.nvim) setup,
     }
 ]
 ```
+# 📦 Hooks
+
+Projections exposes the following User events that you can hook into:
+
+- ProjectionsPreStoreSession
+- ProjectionsPostStoreSession
+- ProjectionsPreRestoreSession
+- ProjectionsPostRestoreSession
+
+Suppose you want to close existing language servers when you switch projects.
+
+```lua
+vim.api.nvim_create_autocmd("User", {
+    pattern = "ProjectionsPreStoreSession",
+    callback = function()
+        vim.lsp.stop_client(vim.lsp.get_clients())
+    end
+})
+```
 
 ## 📦 Interaction with plugins
 
 Some plugins do not work well with Neovim's sessions. For example, if you try `:mksession` with an open
 `nvim-tree` window (at the time of writing), it will store instructions for an empty buffer in the sessions file.
 
-There are several other plugins that do not work well. There are several methods to deal with this including:
+There are several methods to deal with this including:
 
-1. Close all such buffers before saving the session. `see pre store hooks`
-2. Store all such buffers, and then restore them accordingly. `see post restore hooks`
+1. Close all such buffers before saving the session.
+2. Store all such buffers, and then restore them accordingly.
 
 For example, let's see how you can close `nvim-tree`, or `neo-tree` before storing sessions:
 
 ```lua
-{
-    store_hooks = {
-        pre = function()
-            -- nvim-tree 
-            local nvim_tree_present, api = pcall(require, "nvim-tree.api")
-            if nvim_tree_present then api.tree.close() end
+vim.api.nvim_create_autocmd("User", {
+    pattern = "ProjectionsPreStoreSession",
+    callback = function()
+        -- nvim-tree
+        local nvim_tree_present, api = pcall(require, "nvim-tree.api")
+        if nvim_tree_present then api.tree.close() end
 
-            -- neo-tree
-            if pcall(require, "neo-tree") then vim.cmd [[Neotree action=close]] end
-        end
-    }
-}
+        -- neo-tree
+        if pcall(require, "neo-tree") then vim.cmd [[Neotree action=close]] end
+    end
+})
 ```
 
 **Will such a functionality be present in `projections`?** Hard to say. This is not an easy problem to solve reliably.

@@ -65,10 +65,10 @@ end
 ---@param spath string Path to the session file
 ---@returns boolean
 function Session.store_to_session_file(spath)
-    if Config.config.store_hooks.pre ~= nil then Config.config.store_hooks.pre() end
+    vim.api.nvim_exec_autocmds("User", { pattern = "ProjectionsPreStoreSession" })
     local ret, _ = pcall(vim.cmd.mksession, { vim.fn.fnameescape(spath), bang = true })
     if not ret then return false end
-    if Config.config.store_hooks.post ~= nil then Config.config.store_hooks.post() end
+    vim.api.nvim_exec_autocmds("User", { pattern = "ProjectionsPostStoreSession" })
     return true
 end
 
@@ -86,10 +86,10 @@ end
 ---@param spath string Path to session file
 ---@return boolean
 function Session.restore_from_session_file(spath)
-    if Config.config.restore_hooks.pre ~= nil then Config.config.restore_hooks.pre() end
+    vim.api.nvim_exec_autocmds("User", { pattern = "ProjectionsPreRestoreSession" })
     local ret, _ = pcall(vim.cmd.source, vim.fn.fnameescape(spath))
     if not ret then return false end
-    if Config.config.restore_hooks.post ~= nil then Config.config.restore_hooks.post() end
+    vim.api.nvim_exec_autocmds("User", { pattern = "ProjectionsPostRestoreSession" })
     return true
 end
 
@@ -120,3 +120,4 @@ function Session.restore_latest()
 end
 
 return Session
+
